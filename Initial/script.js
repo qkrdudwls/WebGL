@@ -6,5 +6,8 @@ if (!gl) {
 }
 
 var vertices_Y = [
-    vec2
+]
+
+var vertices_J = [
+
 ]
