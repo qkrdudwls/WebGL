@@ -3,10 +3,26 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Computer Graphics Assignment 1</title>    
+        <title>Computer Graphics Assignment 1</title>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            attribute vec4 vPosition;
+
+            void main() {
+                gl_PointSize = 1.0;
+                gl_Position = vPosition;
+            }
+        </script>
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            void main() {
+                gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+            }
+        </script>
+        <script src="webgl-utils.js"></script>
+        <script src="initShaders.js"></script>
+        <script src="MV.js"></script>
+        <script src="script.js"></script>
     </head>
     <body>
-        <canvas id="glCanvas"></canvas>
-        <script src="script.js"></script>
+        <canvas id="glCanvas" width="500" height="500"></canvas>
     </body>
 </html>
