@@ -10,11 +10,49 @@ window.onload = function init()
     if ( !gl ) { alert( "WebGL is not available" ); }
 
     var vertices = [
-        vec2(0.0, 0.0),
-        vec2(0.5, 0.5),
-        vec2(-0.5,0.5),
-        vec2(0.0, 0.0),
-        vec2(0.0, -0.5)
+        // Y
+        vec2(-0.5, 0.2),
+        vec2(-0.4, 0.0),
+        vec2(-0.4, 0.2),
+        vec2(-0.3, 0.0),
+        vec2(-0.2, 0.2),
+        vec2(-0.3, 0.2),
+        vec2(-0.4, 0.0),
+        vec2(-0.3, 0.0),
+        vec2(-0.4, -0.2),
+        vec2(-0.3, -0.2),
+
+        // J
+        vec2(-0.1, 0.2),
+        vec2(-0.1, 0.1),
+        vec2(0.2, 0.2),
+        vec2(0.2, 0.1),
+        vec2(0.1, 0.1),
+        vec2(0.2, -0.1),
+        vec2(0.1, -0.1),
+        vec2(0.1, -0.2),
+        vec2(0.0, -0.1),
+        vec2(0.0, -0.2),
+        vec2(-0.1, -0.1),
+        vec2(-0.1, 0.0),
+        vec2(0.0, -0.1),
+
+        // P
+        vec2(0.3, 0.2),
+        vec2(0.3, -0.2),
+        vec2(0.4, 0.2),
+        vec2(0.4, -0.2),
+        vec2(0.4, -0.1),
+        vec2(0.4, 0.0),
+        vec2(0.5, -0.1),
+        vec2(0.5, 0.0),
+        vec2(0.6, 0.0),
+        vec2(0.5, 0.1),
+        vec2(0.6, 0.1),
+        vec2(0.5, 0.2),
+        vec2(0.4, 0.2),
+        vec2(0.5, 0.1),
+        vec2(0.4, 0.1)
     ];
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
@@ -36,5 +74,31 @@ window.onload = function init()
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.LINES, 0, 6 );
+    gl.drawArrays( gl.TRIANGLES, 0, 3 );
+    gl.drawArrays( gl.TRIANGLES, 1, 3 );
+    gl.drawArrays( gl.TRIANGLES, 3, 3 );
+    gl.drawArrays( gl.TRIANGLES, 5, 3 );
+    gl.drawArrays( gl.TRIANGLES, 6, 3 );
+    gl.drawArrays( gl.TRIANGLES, 7, 3 );
+
+    gl.drawArrays( gl.TRIANGLES, 10, 3 );
+    gl.drawArrays( gl.TRIANGLES, 11, 3 );
+    gl.drawArrays( gl.TRIANGLES, 13, 3 );
+    gl.drawArrays( gl.TRIANGLES, 14, 3 );
+    gl.drawArrays( gl.TRIANGLES, 15, 3 );
+    gl.drawArrays( gl.TRIANGLES, 16, 3 );
+    gl.drawArrays( gl.TRIANGLES, 17, 3 );
+    gl.drawArrays( gl.LINES, 19, 2 );
+    gl.drawArrays( gl.TRIANGLES, 20, 3 );
+
+    gl.drawArrays( gl.TRIANGLES, 23, 3 );
+    gl.drawArrays( gl.TRIANGLES, 24, 3 );
+    gl.drawArrays( gl.TRIANGLES, 27, 3 );
+    gl.drawArrays( gl.TRIANGLES, 28, 3 );
+    gl.drawArrays( gl.TRIANGLES, 29, 3 );
+    gl.drawArrays( gl.TRIANGLES, 30, 3 );
+    gl.drawArrays( gl.TRIANGLES, 31, 3 );
+    gl.drawArrays( gl.LINES, 33, 2 );
+    gl.drawArrays( gl.TRIANGLES, 34, 3 );
+    gl.drawArrays( gl.TRIANGLES, 35, 3 );
 }
