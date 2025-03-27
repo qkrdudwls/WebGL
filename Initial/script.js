@@ -1,7 +1,7 @@
 "use strict";
 
 let gl;
-let delay = 10;
+let delay = 0;
 let theta = 0.0;
 let thetaLoc;
 let direction = true;
@@ -9,7 +9,8 @@ let start = false;
 
 window.onload = function init()
 {
-    var canvas = document.getElementById( "glCanvas" );
+    var canvas = document.getElementById( "glCanvas" );4
+
     document.getElementById( "Control" ).onclick = function () {
         start = !start;
         if (start) {
@@ -19,8 +20,25 @@ window.onload = function init()
             this.value = "Start";
         }
     }
+
     document.getElementById( "Direction" ).onclick = function () {
         direction = !direction;
+    }
+
+    document.getElementById( "Speed" ).onclick = function () {
+        delay = parseInt(this.value);
+    }
+    
+    window.onkeydown = function (event) {
+        let key = String.fromCharCode(event.keyCode);
+        switch(key) {
+            case 'A':
+                direction = true;
+                break;
+            case 'D':
+                direction = false;
+                break;
+        }
     }
 
     gl = WebGLUtils.setupWebGL( canvas );
@@ -129,8 +147,7 @@ function render() {
             theta += 0.1;
         } else {
             theta -= 0.1;
-        }
-        
+        }      
         setTimeout(
             function () {requestAnimationFrame(render);}, delay 
         );
