@@ -40,9 +40,11 @@ window.onload = function init()
         switch(key) {
             case 'A':
                 direction = true;
+                document.getElementById( "Direction" ).value = "To the Right";
                 break;
             case 'D':
                 direction = false;
+                document.getElementById( "Direction" ).value = "To the Left";
                 break;
         }
     }
