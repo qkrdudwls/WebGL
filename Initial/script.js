@@ -5,13 +5,23 @@ let delay = 10;
 let theta = 0.0;
 let thetaLoc;
 let direction = true;
+let start = false;
 
 window.onload = function init()
 {
     var canvas = document.getElementById( "glCanvas" );
-    document.getElementById("Direction").onclick = function () {
+    document.getElementById( "Control" ).onclick = function () {
+        start = !start;
+        if (start) {
+            this.value = "Stop";
+            render();
+        } else {
+            this.value = "Start";
+        }
+    }
+    document.getElementById( "Direction" ).onclick = function () {
         direction = !direction;
-    };
+    }
 
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL is not available" ); }
@@ -83,12 +93,12 @@ window.onload = function init()
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
-    theta += 0.1;
     gl.uniform1f( thetaLoc, theta );
 
     gl.drawArrays( gl.TRIANGLES, 0, 3 );
     gl.drawArrays( gl.TRIANGLES, 1, 3 );
-    gl.drawArrays( gl.TRIANGLES, 3, 3 );
+    gl.drawArrays( gl.LINES, 3, 2);
+    gl.drawArrays( gl.LINES, 4, 2);
     gl.drawArrays( gl.TRIANGLES, 5, 3 );
     gl.drawArrays( gl.TRIANGLES, 6, 3 );
     gl.drawArrays( gl.TRIANGLES, 7, 3 );
@@ -113,10 +123,16 @@ function render() {
     gl.drawArrays( gl.LINES, 33, 2 );
     gl.drawArrays( gl.TRIANGLES, 34, 3 );
     gl.drawArrays( gl.TRIANGLES, 35, 3 );
-    
-    setTimeout(
-        function () {requestAnimationFrame(render);}, delay 
-    );
-    
-    //window.requestAnimationFrame(render);
+
+    if (start) {
+        if (direction) {
+            theta += 0.1;
+        } else {
+            theta -= 0.1;
+        }
+        
+        setTimeout(
+            function () {requestAnimationFrame(render);}, delay 
+        );
+    };
 }
