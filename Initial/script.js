@@ -123,8 +123,11 @@ function render() {
 
     gl.drawArrays( gl.TRIANGLES, 0, 3 );
     gl.drawArrays( gl.TRIANGLES, 1, 3 );
-    gl.drawArrays( gl.LINES, 3, 2);
-    gl.drawArrays( gl.LINES, 4, 2);
+    gl.drawArrays( gl.LINES, 3, 2 );
+    gl.drawArrays( gl.LINES, 4, 2 );
+    gl.drawArrays( gl.POINTS, 3, 1 );
+    gl.drawArrays( gl.POINTS, 4, 1 );
+    gl.drawArrays( gl.POINTS, 5, 1 );
     gl.drawArrays( gl.TRIANGLES, 5, 3 );
     gl.drawArrays( gl.TRIANGLES, 6, 3 );
     gl.drawArrays( gl.TRIANGLES, 7, 3 );
