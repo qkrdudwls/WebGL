@@ -6,7 +6,7 @@
         <title>Computer Graphics Assignment 1</title>
         <script id="vertex-shader" type="x-shader/x-vertex">
             attribute vec4 vPosition;
-            uniform float theata;
+            uniform float theta;
 
             void main() {
                 float s = sin( theta );
@@ -20,7 +20,7 @@
         </script>
         <script id="fragment-shader" type="x-shader/x-fragment">
             void main() {
-                gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+                gl_FragColor = vec4( 0.0, 0.7, 1.0, 1.0 );
             }
         </script>
         <script src="webgl-utils.js"></script>
@@ -30,5 +30,6 @@
     </head>
     <body>
         <canvas id="glCanvas" width="500" height="500"></canvas>
+        <button id="Direction">Change Rotation Direction</button>
     </body>
 </html>

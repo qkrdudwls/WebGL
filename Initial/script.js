@@ -1,11 +1,17 @@
 "use strict";
 
 let gl;
+let delay = 10;
+let theta = 0.0;
 let thetaLoc;
+let direction = true;
 
 window.onload = function init()
 {
     var canvas = document.getElementById( "glCanvas" );
+    document.getElementById("Direction").onclick = function () {
+        direction = !direction;
+    };
 
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL is not available" ); }
@@ -107,6 +113,10 @@ function render() {
     gl.drawArrays( gl.LINES, 33, 2 );
     gl.drawArrays( gl.TRIANGLES, 34, 3 );
     gl.drawArrays( gl.TRIANGLES, 35, 3 );
-
-    window.requestAnimationFrame(render);
+    
+    setTimeout(
+        function () {requestAnimationFrame(render);}, delay 
+    );
+    
+    //window.requestAnimationFrame(render);
 }
