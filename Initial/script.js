@@ -9,7 +9,7 @@ let start = false;
 
 window.onload = function init()
 {
-    var canvas = document.getElementById( "glCanvas" );4
+    var canvas = document.getElementById( "glCanvas" );
 
     document.getElementById( "Control" ).onclick = function () {
         start = !start;
@@ -22,15 +22,21 @@ window.onload = function init()
     }
 
     document.getElementById( "Direction" ).onclick = function () {
-        direction = !direction;
+        if (direction) {
+            this.value = "To the Left";
+            direction = false;
+        } else {
+            this.value = "To the Right";
+            direction = true;
+        }
     }
 
     document.getElementById( "Speed" ).onclick = function () {
         delay = parseInt(this.value);
     }
-    
-    window.onkeydown = function (event) {
-        let key = String.fromCharCode(event.keyCode);
+
+    window.onkeydown = function ( event ) {
+        let key = String.fromCharCode( event.keyCode );
         switch(key) {
             case 'A':
                 direction = true;

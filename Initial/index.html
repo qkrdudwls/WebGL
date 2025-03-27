@@ -36,10 +36,18 @@
             document.querySelector( '#Control' ).value = 'Start';
         }
         ">
-        <button id="Direction">Change Rotation Direction</button>
         <br>
         <canvas id="glCanvas" width="500" height="500"></canvas>
         <br>
+        <label for="Direction">Change Rotation Direction: </label>
+        <input id="Direction" type="button" value="To the Right" onclick="
+        if (document.querySelector( '#Direction' ).value == 'To the Right') {
+            document.querySelector( '#Direction' ).value = 'To the Left';
+        } else {
+            document.querySelector( '#Direction' ).value = 'To the Right';
+        }
+        ">
+        <br><br>
         <label for="Speed">Animation Speed</label>
         <br>
         <span>Fast</span>
