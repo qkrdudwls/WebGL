@@ -9,7 +9,7 @@ let start = false;
 
 window.onload = function init()
 {
-    var canvas = document.getElementById( "glCanvas" );
+    let canvas = document.getElementById( "glCanvas" );
 
     document.getElementById( "Control" ).onclick = function () {
         start = !start;
@@ -101,14 +101,14 @@ window.onload = function init()
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1., 1., 1.0, 1.0 );
 
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    let program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    var bufferId = gl.createBuffer();
+    let bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
 
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
+    let vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
@@ -153,14 +153,14 @@ function render() {
     gl.drawArrays( gl.TRIANGLES, 34, 3 );
     gl.drawArrays( gl.TRIANGLES, 35, 3 );
 
-    if (start) {
-        if (direction) {
+    if ( start ) {
+        if ( direction ) {
             theta += 0.1;
         } else {
             theta -= 0.1;
         }      
         setTimeout(
-            function () {requestAnimationFrame(render);}, delay 
+            function () { requestAnimationFrame(render); }, delay 
         );
     };
 }
