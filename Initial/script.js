@@ -1,7 +1,7 @@
 "use strict";
 
 let gl;
-let delay = 0;
+let delay = 10;
 let theta = 0.0;
 let thetaLoc;
 let direction = true;
