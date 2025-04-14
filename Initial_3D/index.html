@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Computer Graphics Assignment 1</title>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            attribute vec4 vPosition;
+            uniform float theta;
+
+            void main() {
+                float s = sin( theta );
+                float c = cos( theta );
+
+                gl_Position.x = -s * vPosition.y + c * vPosition.x;
+                gl_Position.y = s * vPosition.x + c * vPosition.y;
+                gl_Position.z = 0.0;
+                gl_Position.w = 1.0;
+            }
+        </script>
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            void main() {
+                gl_FragColor = vec4( 0.0, 0.7, 1.0, 1.0 );
+            }
+        </script>
+        <script src="webgl-utils.js"></script>
+        <script src="initShaders.js"></script>
+        <script src="MV.js"></script>
+        <script src="script.js"></script>
+    </head>
+    <body>
+        <input id="Control" type="button" value="Start" onclick="
+        if (document.querySelector( '#Control' ).value == 'Start') {
+            document.querySelector( '#Control' ).value = 'Stop';
+        } else {
+            document.querySelector( '#Control' ).value = 'Start';
+        }
+        ">
+        <br>
+        <canvas id="glCanvas" width="500" height="500"></canvas>
+        <br>
+        <label for="Direction">Change Rotation Direction: </h4></label>
+        <input id="Direction" type="button" value="To the Right" onclick="
+        if (document.querySelector( '#Direction' ).value == 'To the Right') {
+            document.querySelector( '#Direction' ).value = 'To the Left';
+        } else {
+            document.querySelector( '#Direction' ).value = 'To the Right';
+        }
+        ">
+        <br>
+        <label for="Speed"><h4>Animation Speed</h4></label>
+        <span>Fast</span>
+        <input id="Speed" type="range" min="10" max="200" value="10">
+        <span>Slow</span>
+        <br>
+        <div>
+            <h4>Keyboard Input</h4>
+            <p>
+                <ul>
+                    <li>A: Turn to Left</li>
+                    <li>D: Turn to Right</li>
+                </ul>
+            </p>
+        </div>
+    </body>
+</html>
