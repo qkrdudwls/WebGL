@@ -25,6 +25,40 @@
         <script src="script.js"></script>
     </head>
     <body>
+        <input id="control" type="button" value="Start" onclick="
+        if (document.querySelector( '#control' ).value == 'Start') {
+            document.querySelector( '#control' ).value = 'Stop';
+        } else {
+            document.querySelector( '#control' ).value = 'Start';
+        }
+        ">
+        <button id="reset">Reset</button>
+        <br>
         <canvas id="glCanvas" width="500" height="500"></canvas>
+        <br>
+        <h3>Translation</h3>
+        <button id="translateXNegative">Translate X -</button>
+        <button id="translateXPositive">Translate X +</button>
+        <br>
+        <button id="translateYNegative">Translate Y -</button>
+        <button id="translateYPositive">Translate Y +</button>
+        <br>
+        <button id="translateZNegative">Translate Z -</button>
+        <button id="translateZPositive">Translate Z +</button>
+        <h3>Rotation</h3>
+        <button id="rotateX">Rotate X</button>
+        <button id="rotateY">Rotate Y</button>
+        <button id="rotateZ">Rotate Z</button>
+        <button id="reverse">Reverse</button>
+        <input id="mode" type="button" value="Auto" onclick="
+        if (document.querySelector( '#mode' ).value == 'Auto') {
+            document.querySelector( '#mode' ).value = 'Manual';
+        } else {
+            document.querySelector( '#mode' ).value = 'Auto';
+        }
+        ">
+        <h3>Scaling</h3>
+        <button id="scaleUp">Scale Up</button>
+        <button id="scaleDown">Scale Down</button>
     </body>
 </html>

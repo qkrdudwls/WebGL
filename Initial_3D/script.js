@@ -6,9 +6,16 @@ let theta = [0, 0, 0];
 let xAxis = 0;
 let yAxis = 1;
 let zAxis = 2;
-let axis = 0;
+let axis = -1;
+let rotationDirection = 1;
+let translation = [0, 0, 0];
+let scaleFactor = 1.0;
+let start = false;
+let autoRotate = false;
 
 let vertices = [];
+let modelViewMatrix;
+let modelViewMatrixLoc;
 
 window.onload = function init()
 {
@@ -63,6 +70,7 @@ window.onload = function init()
     var sideVertices = [];
 
     for(let i = 0; i <= 29; i++) {
+        if (i == 28) { continue; }
         sideVertices.push(frontVertices[i], backVertices[i]);
     }
 
@@ -74,10 +82,10 @@ window.onload = function init()
     let program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    let modelViewMatrix = lookAt(vec3(0.0, 0.0, 1.5), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+    modelViewMatrix = lookAt(vec3(0.0, 0.0, 1.5), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
     let projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
 
-    let modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     let projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
@@ -91,11 +99,65 @@ window.onload = function init()
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
+    document.getElementById( "control" ).onclick = function () { 
+        start = !start;
+        if (start) {
+            this.value = "Stop";
+        } else {
+            this.value = "Start";
+        }
+    };
+
+    document.getElementById( "reset" ).onclick = function () {
+        translation = [0, 0, 0];
+        theta = [0, 0, 0];
+        scaleFactor = 1.0;
+        start = false;
+        autoRotate = false;
+        document.getElementById( "control" ).value = "Start";
+        document.getElementById( "mode" ).value = "Auto";
+    }
+
+    document.getElementById( "translateXNegative" ).onclick = function () { translation[0] -= 0.1; };
+    document.getElementById( "translateXPositive" ).onclick = function () { translation[0] += 0.1; };
+    document.getElementById( "translateYNegative" ).onclick = function () { translation[1] -= 0.1; };
+    document.getElementById( "translateYPositive" ).onclick = function () { translation[1] += 0.1; };
+    document.getElementById( "translateZNegative" ).onclick = function () { translation[2] -= 0.1; };
+    document.getElementById( "translateZPositive" ).onclick = function () { translation[2] += 0.1; };
+
+    document.getElementById( "rotateX" ).onclick = function () { 
+        axis = xAxis;
+        autoRotate = false;
+        document.getElementById( "mode" ).value = "Auto";
+    };
+    document.getElementById( "rotateY" ).onclick = function () { 
+        axis = yAxis;
+        autoRotate = false;
+        document.getElementById( "mode" ).value = "Auto"; 
+    };
+    document.getElementById( "rotateZ" ).onclick = function () { 
+        axis = zAxis;
+        autoRotate = false;
+        document.getElementById( "mode" ).value = "Auto";
+    };
+    document.getElementById( "reverse" ).onclick = function () { rotationDirection *= -1; };
+    document.getElementById( "mode" ).onclick = function () {
+        autoRotate = !autoRotate;
+        if (autoRotate) {
+            this.value = "Manual";
+        } else {
+            this.value = "Auto";
+        }
+    }
+
+    document.getElementById( "scaleUp" ).onclick = function () { scaleFactor *= 1.1; };
+    document.getElementById( "scaleDown" ).onclick = function () { scaleFactor *= 0.9; };
+
     render();
 };
 
 function render() {
-    gl.clear( gl.COLOR_BUFFER_BIT );
+    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
     gl.drawArrays( gl.LINE_LOOP, 0, 9 );
     gl.drawArrays( gl.LINE_LOOP, 9, 11 );
@@ -111,4 +173,25 @@ function render() {
         gl.drawArrays( gl.LINE_LOOP, i, 2 );
     }
 
+    if (start) {
+        theta[axis] += rotationDirection * 2.0;
+    }
+
+    if (autoRotate) {
+        theta[0] += rotationDirection * 0.6;
+        theta[1] += rotationDirection * 0.6;
+        theta[2] += rotationDirection * 0.6;
+    }
+
+    let translationMatrix = translate(translation[0], translation[1], translation[2]);
+    let rotationMatrix = mat4();
+    rotationMatrix = mult(rotationMatrix, rotateX(theta[xAxis]));
+    rotationMatrix = mult(rotationMatrix, rotateY(theta[yAxis]));
+    rotationMatrix = mult(rotationMatrix, rotateZ(theta[zAxis]));
+    let scalingMatrix = scalem(scaleFactor, scaleFactor, scaleFactor);
+
+    let finalMatrix = mult(modelViewMatrix, mult(translationMatrix, mult(rotationMatrix, scalingMatrix)));
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(finalMatrix));
+
+    requestAnimationFrame(render);
 }
