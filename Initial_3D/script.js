@@ -62,12 +62,8 @@ window.onload = function init()
 
     var sideVertices = [];
 
-    function createSideVertices(num) {
-        sideVertices.push(frontVertices[num], backVertices[num]);
-    }
-
     for(let i = 0; i <= 29; i++) {
-        createSideVertices(i);
+        sideVertices.push(frontVertices[i], backVertices[i]);
     }
 
     vertices = frontVertices.concat(backVertices, sideVertices);
