@@ -72,7 +72,7 @@ window.onload = function init()
 
     var sideVertices = [];
 
-    for(let i = 0; i <= 29; i++) {
+    for(let i = 0; i <= 32; i++) {
         if (i == 28) { continue; }
         sideVertices.push(frontVertices[i], backVertices[i]);
     }
