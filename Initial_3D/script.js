@@ -222,7 +222,7 @@ function render() {
         theta[axis] += rotationDirection * 2.0;
     }
 
-    if (autoRotate) {
+    if (start && autoRotate) {
         theta[0] += rotationDirection * 0.6;
         theta[1] += rotationDirection * 0.6;
         theta[2] += rotationDirection * 0.6;
@@ -238,5 +238,5 @@ function render() {
     let finalMatrix = mult(modelViewMatrix, mult(translationMatrix, mult(rotationMatrix, scalingMatrix)));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(finalMatrix));
 
-    requestAnimationFrame(render);
+    requestAnimationFrame(render); 
 }
