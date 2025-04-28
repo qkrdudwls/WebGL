@@ -119,6 +119,7 @@ window.onload = function init()
     document.getElementById( "reset" ).onclick = function () {
         translation = [0, 0, 0];
         theta = [0, 0, 0];
+        axis = -1;
         scaleFactor = 1.0;
         start = false;
         autoRotate = false;
