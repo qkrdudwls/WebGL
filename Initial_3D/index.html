@@ -34,6 +34,29 @@
         ">
         <button id="reset">Reset</button>
         <br>
+        <div>
+            <h3>LookAt Parameters</h3>
+            <div>
+                Eye: 
+                X <input type="number" id="eyeX" value="0.0" step="0.1" title="Enter Eye X coordinate">
+                Y <input type="number" id="eyeY" value="0.0" step="0.1" title="Enter Eye Y coordinate">
+                Z <input type="number" id="eyeZ" value="1.5" step="0.1" title="Enter Eye Z coordinate">
+            </div>
+            <div>
+                At: 
+                X <input type="number" id="atX" value="0.0" step="0.1" title="Enter At X coordinate">
+                Y <input type="number" id="atY" value="0.0" step="0.1" title="Enter At Y coordinate">
+                Z <input type="number" id="atZ" value="0.0" step="0.1" title="Enter At Z coordinate">
+            </div>
+            <div>
+                Up: 
+                X <input type="number" id="upX" value="0.0" step="0.1" title="Enter Up X coordinate">
+                Y <input type="number" id="upY" value="1.0" step="0.1" title="Enter Up Y coordinate">
+                Z <input type="number" id="upZ" value="0.0" step="0.1" title="Enter Up Z coordinate">
+            </div>
+            <button id="lookat">Update LookAt</button>
+        </div>
+        <br>
         <canvas id="glCanvas" width="500" height="500"></canvas>
         <br>
         <h3>Translation</h3>

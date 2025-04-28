@@ -16,6 +16,9 @@ let autoRotate = false;
 let vertices = [];
 let modelViewMatrix;
 let modelViewMatrixLoc;
+let eye = vec3(0.0, 0.0, 1.5);
+let at = vec3(0.0, 0.0, 0.0);
+let up = vec3(0.0, 1.0, 0.0);
 
 window.onload = function init()
 {
@@ -82,22 +85,27 @@ window.onload = function init()
     let program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    modelViewMatrix = lookAt(vec3(0.0, 0.0, 1.5), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
-    let projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
+    document.getElementById( "lookat" ).onclick = function () {
+        eye = vec3(
+            parseFloat(document.getElementById( "eyeX" ).value),
+            parseFloat(document.getElementById( "eyeY" ).value),
+            parseFloat(document.getElementById( "eyeZ" ).value)
+        );
 
-    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
-    let projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+        at = vec3(
+            parseFloat(document.getElementById( "atX" ).value),
+            parseFloat(document.getElementById( "atY" ).value),
+            parseFloat(document.getElementById( "atZ" ).value)
+        );
 
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+        up = vec3(
+            parseFloat(document.getElementById( "upX" ).value),
+            parseFloat(document.getElementById( "upY" ).value),
+            parseFloat(document.getElementById( "upZ" ).value)
+        );
 
-    let bufferId = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
-
-    let vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+        modelViewMatrix = lookAt(eye, at, up);
+    }
 
     document.getElementById( "control" ).onclick = function () { 
         start = !start;
@@ -114,8 +122,25 @@ window.onload = function init()
         scaleFactor = 1.0;
         start = false;
         autoRotate = false;
+
+        eye = vec3(0.0, 0.0, 1.5);
+        at = vec3(0.0, 0.0, 0.0);
+        up = vec3(0.0, 1.0, 0.0);
+
+        modelViewMatrix = lookAt(eye, at, up);
+
         document.getElementById( "control" ).value = "Start";
         document.getElementById( "mode" ).value = "Auto";
+
+        document.getElementById( "eyeX" ).value = 0.0;
+        document.getElementById( "eyeY" ).value = 0.0;
+        document.getElementById( "eyeZ" ).value = 1.5;
+        document.getElementById( "atX" ).value = 0.0;
+        document.getElementById( "atY" ).value = 0.0;
+        document.getElementById( "atZ" ).value = 0.0;
+        document.getElementById( "upX" ).value = 0.0;
+        document.getElementById( "upY" ).value = 1.0;
+        document.getElementById( "upZ" ).value = 0.0;
     }
 
     document.getElementById( "translateXNegative" ).onclick = function () { translation[0] -= 0.1; };
@@ -153,11 +178,31 @@ window.onload = function init()
     document.getElementById( "scaleUp" ).onclick = function () { scaleFactor *= 1.1; };
     document.getElementById( "scaleDown" ).onclick = function () { scaleFactor *= 0.9; };
 
+    modelViewMatrix = lookAt(eye, at, up);
+    let projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
+
+    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+    let projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+
+    let bufferId = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
+
+    let vPosition = gl.getAttribLocation( program, "vPosition" );
+    gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vPosition );
+
     render();
 };
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+    gl.enable( gl.DEPTH_TEST );
+
+    modelViewMatrix = lookAt(eye, at, up);
 
     gl.drawArrays( gl.LINE_LOOP, 0, 9 );
     gl.drawArrays( gl.LINE_LOOP, 9, 11 );
