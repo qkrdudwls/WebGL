@@ -235,8 +235,13 @@ function render() {
     rotationMatrix = mult(rotationMatrix, rotateY(theta[yAxis]));
     rotationMatrix = mult(rotationMatrix, rotateZ(theta[zAxis]));
     let scalingMatrix = scalem(scaleFactor, scaleFactor, scaleFactor);
-
-    let finalMatrix = mult(modelViewMatrix, mult(translationMatrix, mult(rotationMatrix, scalingMatrix)));
+    
+    let transformMatrix = mat4();
+    transformMatrix = mult(transformMatrix, scalingMatrix);
+    transformMatrix = mult(transformMatrix, rotationMatrix);
+    transformMatrix = mult(transformMatrix, translationMatrix);
+    
+    let finalMatrix = mult(modelViewMatrix, transformMatrix);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(finalMatrix));
 
     requestAnimationFrame(render); 
