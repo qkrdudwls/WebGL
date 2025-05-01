@@ -7,11 +7,6 @@ let xAxis = 0;
 let yAxis = 1;
 let zAxis = 2;
 let axis = -1;
-let rotationDirection = 1;
-let translation = [0, 0, 0];
-let scaleFactor = 1.0;
-let start = false;
-let autoRotate = false;
 
 let vertices = [];
 let modelViewMatrix;
@@ -29,53 +24,93 @@ window.onload = function init()
 
     var frontVertices = [
         // Y
+        vec3(-0.6, 0.2, 0.0),
         vec3(-0.5, 0.2, 0.0),
-        vec3(-0.4, 0.2, 0.0),
-        vec3(-0.35, 0.1, 0.0),
-        vec3(-0.3, 0.2, 0.0),
-        vec3(-0.2, 0.2, 0.0),
-        vec3(-0.3, 0.0, 0.0),
-        vec3(-0.3, -0.2, 0.0),
-        vec3(-0.4, -0.2, 0.0),
+        vec3(-0.5, 0.0, 0.0),
         vec3(-0.4, 0.0, 0.0),
+        vec3(-0.3, 0.2, 0.0),
+        vec3(-0.5, 0.0, 0.0),
+        vec3(-0.4, 0.0, 0.0),
+        vec3(-0.5, -0.2, 0.0),
+        vec3(-0.4, -0.2, 0.0),
 
         // J
-        vec3(-0.1, 0.2, 0.0),
-        vec3(0.2, 0.2, 0.0),
-        vec3(0.2, -0.1, 0.0),
-        vec3(0.1, -0.2, 0.0),
-        vec3(0.0, -0.2, 0.0),
-        vec3(-0.1, -0.1, 0.0),
-        vec3(-0.1, 0.0, 0.0),
-        vec3(0.0, -0.1, 0.0),
-        vec3(0.1, -0.1, 0.0),
+        vec3(-0.2, 0.2, 0.0),
+        vec3(-0.2, 0.1, 0.0),
+        vec3(0.1, 0.2, 0.0),
         vec3(0.1, 0.1, 0.0),
-        vec3(-0.1, 0.1, 0.0),
+        vec3(0.0, 0.1, 0.0),
+        vec3(0.1, -0.1, 0.0),
+        vec3(0.0, -0.2, 0.0),
+        vec3(0.0, -0.1, 0.0),
+        vec3(-0.1, -0.2, 0.0),
+        vec3(-0.1, -0.1, 0.0),
+        vec3(-0.2, -0.1, 0.0),
+        vec3(-0.2, 0.0, 0.0),
 
         // P
+        vec3(0.2, 0.2, 0.0),
+        vec3(0.2, -0.2, 0.0),
         vec3(0.3, 0.2, 0.0),
         vec3(0.3, -0.2, 0.0),
-        vec3(0.4, -0.2, 0.0),
+        vec3(0.3, -0.1, 0.0),
+        vec3(0.3, 0.0, 0.0),
         vec3(0.4, -0.1, 0.0),
-        vec3(0.5, -0.1, 0.0),
-        vec3(0.6, 0.0, 0.0),
-        vec3(0.6, 0.1, 0.0),
-        vec3(0.5, 0.2, 0.0),
-        vec3(0.4, 0.2, 0.0),
-        vec3(0.4, 0.1, 0.0),
         vec3(0.4, 0.0, 0.0),
         vec3(0.5, 0.0, 0.0),
-        vec3(0.5, 0.1, 0.0)
+        vec3(0.4, 0.1, 0.0),
+        vec3(0.5, 0.1, 0.0),
+        vec3(0.4, 0.2, 0.0),
+        vec3(0.3, 0.2, 0.0),
+        vec3(0.4, 0.1, 0.0),
+        vec3(0.3, 0.1, 0.0)
     ];
 
     var backVertices = frontVertices.map(v => vec3(v[0], v[1], v[2]-depth));
 
     var sideVertices = [];
 
-    for(let i = 0; i <= 32; i++) {
-        if (i == 28) { continue; }
-        sideVertices.push(frontVertices[i], backVertices[i]);
+    function createSide (num1, num2) {
+        sideVertices.push(frontVertices[num1], frontVertices[num2], backVertices[num1]);
+        sideVertices.push(backVertices[num1], backVertices[num2], frontVertices[num2]);
     }
+
+    createSide (0, 1);
+    createSide (0, 2);
+    createSide (1, 3);
+    createSide (2, 4);
+    createSide (4, 5);
+    createSide (5, 7);
+    createSide (6, 8);
+    createSide (7, 9);
+    createSide (8, 9);
+
+    createSide (10, 11);
+    createSide (10, 12);
+    createSide (12, 13);
+    createSide (11, 14);
+    createSide (13, 15);
+    createSide (15, 16);
+    createSide (14, 17);
+    createSide (16, 18);
+    createSide (17, 19);
+    createSide (18, 20);
+    createSide (19, 21);
+    createSide (20, 21);
+
+    createSide (22, 23);
+    createSide (22, 24);
+    createSide (23, 25);
+    createSide (25, 26);
+    createSide (26, 28);
+    createSide (28, 30);
+    createSide (30, 31);
+    createSide (31, 33);
+    createSide (33, 34);
+    createSide (27, 36);
+    createSide (27, 29);
+    createSide (29, 31);
+    createSide (31, 36);
 
     vertices = frontVertices.concat(backVertices, sideVertices);
 
@@ -84,100 +119,6 @@ window.onload = function init()
 
     let program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
-
-    document.getElementById( "lookat" ).onclick = function () {
-        eye = vec3(
-            parseFloat(document.getElementById( "eyeX" ).value),
-            parseFloat(document.getElementById( "eyeY" ).value),
-            parseFloat(document.getElementById( "eyeZ" ).value)
-        );
-
-        at = vec3(
-            parseFloat(document.getElementById( "atX" ).value),
-            parseFloat(document.getElementById( "atY" ).value),
-            parseFloat(document.getElementById( "atZ" ).value)
-        );
-
-        up = vec3(
-            parseFloat(document.getElementById( "upX" ).value),
-            parseFloat(document.getElementById( "upY" ).value),
-            parseFloat(document.getElementById( "upZ" ).value)
-        );
-
-        modelViewMatrix = lookAt(eye, at, up);
-    }
-
-    document.getElementById( "control" ).onclick = function () { 
-        start = !start;
-        if (start) {
-            this.value = "Stop";
-        } else {
-            this.value = "Start";
-        }
-    };
-
-    document.getElementById( "reset" ).onclick = function () {
-        translation = [0, 0, 0];
-        theta = [0, 0, 0];
-        axis = -1;
-        scaleFactor = 1.0;
-        start = false;
-        autoRotate = false;
-
-        eye = vec3(0.0, 0.0, 1.5);
-        at = vec3(0.0, 0.0, 0.0);
-        up = vec3(0.0, 1.0, 0.0);
-
-        modelViewMatrix = lookAt(eye, at, up);
-
-        document.getElementById( "control" ).value = "Start";
-        document.getElementById( "mode" ).value = "Auto";
-
-        document.getElementById( "eyeX" ).value = 0.0;
-        document.getElementById( "eyeY" ).value = 0.0;
-        document.getElementById( "eyeZ" ).value = 1.5;
-        document.getElementById( "atX" ).value = 0.0;
-        document.getElementById( "atY" ).value = 0.0;
-        document.getElementById( "atZ" ).value = 0.0;
-        document.getElementById( "upX" ).value = 0.0;
-        document.getElementById( "upY" ).value = 1.0;
-        document.getElementById( "upZ" ).value = 0.0;
-    }
-
-    document.getElementById( "translateXNegative" ).onclick = function () { translation[0] -= 0.1; };
-    document.getElementById( "translateXPositive" ).onclick = function () { translation[0] += 0.1; };
-    document.getElementById( "translateYNegative" ).onclick = function () { translation[1] -= 0.1; };
-    document.getElementById( "translateYPositive" ).onclick = function () { translation[1] += 0.1; };
-    document.getElementById( "translateZNegative" ).onclick = function () { translation[2] -= 0.1; };
-    document.getElementById( "translateZPositive" ).onclick = function () { translation[2] += 0.1; };
-
-    document.getElementById( "rotateX" ).onclick = function () { 
-        axis = xAxis;
-        autoRotate = false;
-        document.getElementById( "mode" ).value = "Auto";
-    };
-    document.getElementById( "rotateY" ).onclick = function () { 
-        axis = yAxis;
-        autoRotate = false;
-        document.getElementById( "mode" ).value = "Auto"; 
-    };
-    document.getElementById( "rotateZ" ).onclick = function () { 
-        axis = zAxis;
-        autoRotate = false;
-        document.getElementById( "mode" ).value = "Auto";
-    };
-    document.getElementById( "reverse" ).onclick = function () { rotationDirection *= -1; };
-    document.getElementById( "mode" ).onclick = function () {
-        autoRotate = !autoRotate;
-        if (autoRotate) {
-            this.value = "Manual";
-        } else {
-            this.value = "Auto";
-        }
-    }
-
-    document.getElementById( "scaleUp" ).onclick = function () { scaleFactor *= 1.1; };
-    document.getElementById( "scaleDown" ).onclick = function () { scaleFactor *= 0.9; };
 
     modelViewMatrix = lookAt(eye, at, up);
     let projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
@@ -205,28 +146,58 @@ function render() {
 
     modelViewMatrix = lookAt(eye, at, up);
 
-    gl.drawArrays( gl.LINE_LOOP, 0, 9 );
-    gl.drawArrays( gl.LINE_LOOP, 9, 11 );
-    gl.drawArrays( gl.LINE_LOOP, 20, 9 );
-    gl.drawArrays( gl.LINE_LOOP, 29, 4 );
+    gl.drawArrays( gl.TRIANGLES, 0, 3 );
+    gl.drawArrays( gl.TRIANGLES, 1, 3 );
+    gl.drawArrays( gl.TRIANGLES, 2, 3 );
+    gl.drawArrays( gl.TRIANGLES, 3, 5 );
+    gl.drawArrays( gl.TRIANGLES, 6, 3 );
+    gl.drawArrays( gl.TRIANGLES, 7, 3 );
+    gl.drawArrays( gl.TRIANGLES, 10, 3 );
+    gl.drawArrays( gl.TRIANGLES, 11, 3 );
+    gl.drawArrays( gl.TRIANGLES, 13, 3 );
+    gl.drawArrays( gl.TRIANGLES, 14, 3 );
+    gl.drawArrays( gl.TRIANGLES, 16, 3 );
+    gl.drawArrays( gl.TRIANGLES, 17, 3 );
+    gl.drawArrays( gl.TRIANGLES, 18, 3 );
+    gl.drawArrays( gl.TRIANGLES, 19, 3 );
+    gl.drawArrays( gl.TRIANGLES, 22, 3 );
+    gl.drawArrays( gl.TRIANGLES, 23, 3 );
+    gl.drawArrays( gl.TRIANGLES, 26, 3 );
+    gl.drawArrays( gl.TRIANGLES, 27, 3 );
+    gl.drawArrays( gl.TRIANGLES, 28, 3 );
+    gl.drawArrays( gl.TRIANGLES, 29, 3 );
+    gl.drawArrays( gl.TRIANGLES, 30, 3 );
+    gl.drawArrays( gl.TRIANGLES, 31, 3 );
+    gl.drawArrays( gl.TRIANGLES, 33, 3 );
+    gl.drawArrays( gl.TRIANGLES, 34, 3 );
 
-    gl.drawArrays( gl.LINE_LOOP, 33, 9 );
-    gl.drawArrays( gl.LINE_LOOP, 42, 11 );
-    gl.drawArrays( gl.LINE_LOOP, 53, 9 );
-    gl.drawArrays( gl.LINE_LOOP, 62, 4 );
+    gl.drawArrays( gl.TRIANGLES, 37, 3 );
+    gl.drawArrays( gl.TRIANGLES, 38, 3 );
+    gl.drawArrays( gl.TRIANGLES, 39, 3 );
+    gl.drawArrays( gl.TRIANGLES, 40, 5 );
+    gl.drawArrays( gl.TRIANGLES, 43, 3 );
+    gl.drawArrays( gl.TRIANGLES, 44, 3 );
+    gl.drawArrays( gl.TRIANGLES, 47, 3 );
+    gl.drawArrays( gl.TRIANGLES, 48, 3 );
+    gl.drawArrays( gl.TRIANGLES, 50, 3 );
+    gl.drawArrays( gl.TRIANGLES, 51, 3 );
+    gl.drawArrays( gl.TRIANGLES, 53, 3 );
+    gl.drawArrays( gl.TRIANGLES, 54, 3 );
+    gl.drawArrays( gl.TRIANGLES, 55, 3 );
+    gl.drawArrays( gl.TRIANGLES, 56, 3 );
+    gl.drawArrays( gl.TRIANGLES, 59, 3 );
+    gl.drawArrays( gl.TRIANGLES, 60, 3 );
+    gl.drawArrays( gl.TRIANGLES, 63, 3 );
+    gl.drawArrays( gl.TRIANGLES, 64, 3 );
+    gl.drawArrays( gl.TRIANGLES, 65, 3 );
+    gl.drawArrays( gl.TRIANGLES, 66, 3 );
+    gl.drawArrays( gl.TRIANGLES, 67, 3 );
+    gl.drawArrays( gl.TRIANGLES, 68, 3 );
+    gl.drawArrays( gl.TRIANGLES, 70, 3 );
+    gl.drawArrays( gl.TRIANGLES, 71, 3 );
 
-    for(let i = 66; i < vertices.length; i += 2) {
-        gl.drawArrays( gl.LINE_LOOP, i, 2 );
-    }
-
-    if (start) {
-        theta[axis] += rotationDirection * 2.0;
-    }
-
-    if (start && autoRotate) {
-        theta[0] += rotationDirection * 0.6;
-        theta[1] += rotationDirection * 0.6;
-        theta[2] += rotationDirection * 0.6;
+    for (let i = 72; i <= 276; i+=3 ) {
+        gl.drawArrays( gl.TRIANGLES, i, 3);
     }
 
     let translationMatrix = translate(translation[0], translation[1], translation[2]);
