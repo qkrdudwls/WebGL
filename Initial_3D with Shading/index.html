@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Computer Graphics Assignment 2</title>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            attribute vec4 vPosition;
+            attribute vec4 vColor;
+            uniform mat4 modelViewMatrix;
+            uniform mat4 projectionMatrix;
+
+            void main() {
+                gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+            }
+        </script>
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            void main() {
+                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+            }
+        </script>
+        <script src="webgl-utils.js"></script>
+        <script src="initShaders.js"></script>
+        <script src="MV.js"></script>
+        <script src="script.js"></script>
+    </head>
+    <body>
+        <input id="control" type="button" value="Start" onclick="
+        if (document.querySelector( '#control' ).value == 'Start') {
+            document.querySelector( '#control' ).value = 'Stop';
+        } else {
+            document.querySelector( '#control' ).value = 'Start';
+        }
+        ">
+        <button id="reset">Reset</button>
+        <br>
+        <div>
+            <h3>LookAt Parameters</h3>
+            <div>
+                Eye: 
+                X <input type="number" id="eyeX" value="0.0" step="0.1" title="Enter Eye X coordinate">
+                Y <input type="number" id="eyeY" value="0.0" step="0.1" title="Enter Eye Y coordinate">
+                Z <input type="number" id="eyeZ" value="1.5" step="0.1" title="Enter Eye Z coordinate">
+            </div>
+            <div>
+                At: 
+                X <input type="number" id="atX" value="0.0" step="0.1" title="Enter At X coordinate">
+                Y <input type="number" id="atY" value="0.0" step="0.1" title="Enter At Y coordinate">
+                Z <input type="number" id="atZ" value="0.0" step="0.1" title="Enter At Z coordinate">
+            </div>
+            <div>
+                Up: 
+                X <input type="number" id="upX" value="0.0" step="0.1" title="Enter Up X coordinate">
+                Y <input type="number" id="upY" value="1.0" step="0.1" title="Enter Up Y coordinate">
+                Z <input type="number" id="upZ" value="0.0" step="0.1" title="Enter Up Z coordinate">
+            </div>
+            <button id="lookat">Update LookAt</button>
+        </div>
+        <br>
+        <canvas id="glCanvas" width="500" height="500"></canvas>
+        <br>
+        <h3>Translation</h3>
+        <button id="translateXNegative">Translate X -</button>
+        <button id="translateXPositive">Translate X +</button>
+        <br>
+        <button id="translateYNegative">Translate Y -</button>
+        <button id="translateYPositive">Translate Y +</button>
+        <br>
+        <button id="translateZNegative">Translate Z -</button>
+        <button id="translateZPositive">Translate Z +</button>
+        <h3>Rotation</h3>
+        <button id="rotateX">Rotate X</button>
+        <button id="rotateY">Rotate Y</button>
+        <button id="rotateZ">Rotate Z</button>
+        <button id="reverse">Reverse</button>
+        <input id="mode" type="button" value="Auto" onclick="
+        if (document.querySelector( '#mode' ).value == 'Auto') {
+            document.querySelector( '#mode' ).value = 'Manual';
+        } else {
+            document.querySelector( '#mode' ).value = 'Auto';
+        }
+        ">
+        <h3>Scaling</h3>
+        <button id="scaleUp">Scale Up</button>
+        <button id="scaleDown">Scale Down</button>
+    </body>
+</html>
