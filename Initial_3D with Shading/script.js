@@ -76,6 +76,7 @@ window.onload = function init()
         sideVertices.push(backVertices[num1], backVertices[num2], frontVertices[num2]);
     }
 
+    // Y
     createSide (0, 1);
     createSide (1, 3);
     createSide (2, 4);
@@ -86,6 +87,7 @@ window.onload = function init()
     createSide (8, 6);
     createSide (2, 0);
 
+    // J
     createSide (10, 12);
     createSide (12, 15);
     createSide (15, 16);
@@ -98,6 +100,7 @@ window.onload = function init()
     createSide (14, 11);
     createSide (11, 10);
 
+    // P
     createSide (22, 23);
     createSide (23, 25);
     createSide (25, 26);
