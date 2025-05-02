@@ -13,6 +13,7 @@ let modelViewMatrix;
 let modelViewMatrixLoc;
 let projectionMatrix;
 let projectionMatrixLoc;
+let normMatrix;
 
 let eye = vec3(0.0, 0.0, 1.5);
 let at = vec3(0.0, 0.0, 0.0);
@@ -56,6 +57,51 @@ function updateEyePosition() {
     eye[0] = radius * Math.cos(radEl) * Math.sin(radAz);
     eye[1] = radius * Math.sin(radEl);
     eye[2] = radius * Math.cos(radEl) * Math.sin(radAz);
+}
+
+function computeNormals(vertices) {
+    let normals = [];
+
+    let drawCommands = [
+        [0, 3], [1, 3], [2, 3], [3, 3], [6, 3], [7, 3], [10, 3], [11, 3],
+        [13, 3], [14, 3], [16, 3], [17, 3], [18, 3], [19, 3], [22, 3], [23, 3],
+        [26, 3], [27, 3], [28, 3], [29, 3], [30, 3], [31, 3], [33, 3], [34, 3],
+        [37, 3], [38, 3], [39, 3], [40, 3], [43, 3], [44, 3], [47, 3], [48, 3],
+        [50, 3], [51, 3], [53, 3], [54, 3], [55, 3], [56, 3], [59, 3], [60, 3],
+        [63, 3], [64, 3], [65, 3], [66, 3], [67, 3], [68, 3], [70, 3], [71, 3]
+    ];
+
+    for (let [start, count] of drawCommands) {
+        for (let i = start; i < start + count; i += 3) {
+            let a = vertices[i];
+            let b = vertices[i + 1];
+            let c = vertices[i + 2];
+
+            let t1 = subtract(b, a);
+            let t2 = subtract(c, a);
+            let normal = normalize(cross(t1, t2));
+
+            normals[i] = normal;
+            normals[i + 1] = normal;
+            normals[i + 2] = normal;
+        }
+    }
+
+    for (let i = 74; i < vertices.length; i += 3) {
+        let a = vertices[i];
+        let b = vertices[i + 1];
+        let c = vertices[i + 2];
+
+        let t1 = subtract(b, a);
+        let t2 = subtract(c, a);
+        let normal = normalize(cross(t1, t2));
+
+        normals[i] = normal;
+        normals[i + 1] = normal;
+        normals[i + 2] = normal;
+    }
+
+    return normals;
 }
 
 window.onload = function init()
@@ -114,47 +160,47 @@ window.onload = function init()
 
     var sideVertices = [];
 
-    function createSide (num1, num2) {
+    function createSide(num1, num2) {
         sideVertices.push(frontVertices[num1], frontVertices[num2], backVertices[num1]);
         sideVertices.push(backVertices[num1], backVertices[num2], frontVertices[num2]);
     }
 
     // Y
-    createSide (0, 1);
-    createSide (1, 3);
-    createSide (2, 4);
-    createSide (4, 5);
-    createSide (5, 3);
-    createSide (7, 9);
-    createSide (9, 8);
-    createSide (8, 6);
-    createSide (2, 0);
+    createSide(0, 1);
+    createSide(1, 3);
+    createSide(2, 4);
+    createSide(4, 5);
+    createSide(5, 3);
+    createSide(7, 9);
+    createSide(9, 8);
+    createSide(8, 6);
+    createSide(2, 0);
 
     // J
-    createSide (10, 12);
-    createSide (12, 15);
-    createSide (15, 16);
-    createSide (16, 18);
-    createSide (18, 20);
-    createSide (20, 21);
-    createSide (21, 19);
-    createSide (19, 17);
-    createSide (17, 14);
-    createSide (14, 11);
-    createSide (11, 10);
+    createSide(10, 12);
+    createSide(12, 15);
+    createSide(15, 16);
+    createSide(16, 18);
+    createSide(18, 20);
+    createSide(20, 21);
+    createSide(21, 19);
+    createSide(19, 17);
+    createSide(17, 14);
+    createSide(14, 11);
+    createSide(11, 10);
 
     // P
-    createSide (22, 23);
-    createSide (23, 25);
-    createSide (25, 26);
-    createSide (28, 30);
-    createSide (30, 32);
-    createSide (32, 33);
-    createSide (33, 22);
-    createSide (36, 27);
-    createSide (27, 29);
-    createSide (29, 31);
-    createSide (31, 36);
+    createSide(22, 23);
+    createSide(23, 25);
+    createSide(25, 26);
+    createSide(28, 30);
+    createSide(30, 32);
+    createSide(32, 33);
+    createSide(33, 22);
+    createSide(36, 27);
+    createSide(27, 29);
+    createSide(29, 31);
+    createSide(31, 36);
 
     vertices = frontVertices.concat(backVertices, sideVertices);
 
@@ -163,6 +209,53 @@ window.onload = function init()
 
     let program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
+
+    let lightPosition = vec4(10.0, 10.0, 10.0, 1.0);
+    let lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+    let lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+    let lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+
+    let materialAmbient = vec4(1.0, 0.8, 0.0, 1.0);
+    let materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+    let materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+    let materialShininess = 50.0;
+
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightAmbient"), flatten(lightAmbient));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightDiffuse"), flatten(lightDiffuse));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightSpecular"), flatten(lightSpecular));
+
+    gl.uniform4fv(gl.getUniformLocation(program, "materialAmbient"), flatten(materialAmbient));
+    gl.uniform4fv(gl.getUniformLocation(program, "materialDiffuse"), flatten(materialDiffuse));
+    gl.uniform4fv(gl.getUniformLocation(program, "materialSpecular"), flatten(materialSpecular));
+    gl.uniform4fv(gl.getUniformLocation(program, "materialSininess"), flatten(materialShininess));
+
+    modelViewMatrix = lookAt(eye, at, up);
+    projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
+
+    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+
+    let bufferId = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
+
+    let vPosition = gl.getAttribLocation( program, "vPosition" );
+    gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vPosition );
+
+    let normals = computeNormals(vertices);
+
+    let nBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW);
+
+    let vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vNormal);
 
     canvas.addEventListener("mousedown", function(e) {
         dragging = true;
@@ -190,23 +283,6 @@ window.onload = function init()
         }
     })
 
-    modelViewMatrix = lookAt(eye, at, up);
-    projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
-
-    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
-    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
-
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-
-    let bufferId = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
-
-    let vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
-
     render();
 };
 
@@ -220,7 +296,7 @@ function render() {
     gl.drawArrays( gl.TRIANGLES, 0, 3 );
     gl.drawArrays( gl.TRIANGLES, 1, 3 );
     gl.drawArrays( gl.TRIANGLES, 2, 3 );
-    gl.drawArrays( gl.TRIANGLES, 3, 5 );
+    gl.drawArrays( gl.TRIANGLES, 3, 3 );
     gl.drawArrays( gl.TRIANGLES, 6, 3 );
     gl.drawArrays( gl.TRIANGLES, 7, 3 );
     gl.drawArrays( gl.TRIANGLES, 10, 3 );
@@ -245,7 +321,7 @@ function render() {
     gl.drawArrays( gl.TRIANGLES, 37, 3 );
     gl.drawArrays( gl.TRIANGLES, 38, 3 );
     gl.drawArrays( gl.TRIANGLES, 39, 3 );
-    gl.drawArrays( gl.TRIANGLES, 40, 5 );
+    gl.drawArrays( gl.TRIANGLES, 40, 3 );
     gl.drawArrays( gl.TRIANGLES, 43, 3 );
     gl.drawArrays( gl.TRIANGLES, 44, 3 );
     gl.drawArrays( gl.TRIANGLES, 47, 3 );
