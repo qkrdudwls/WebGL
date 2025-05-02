@@ -209,26 +209,6 @@ window.onload = function init()
     let program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    let lightPosition = vec4(10.0, 10.0, 10.0, 1.0);
-    let lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-    let lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-    let lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-
-    let materialAmbient = vec4(1.0, 0.8, 0.0, 1.0);
-    let materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
-    let materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-    let materialShininess = 50.0;
-
-    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
-    gl.uniform4fv(gl.getUniformLocation(program, "lightAmbient"), flatten(lightAmbient));
-    gl.uniform4fv(gl.getUniformLocation(program, "lightDiffuse"), flatten(lightDiffuse));
-    gl.uniform4fv(gl.getUniformLocation(program, "lightSpecular"), flatten(lightSpecular));
-
-    gl.uniform4fv(gl.getUniformLocation(program, "materialAmbient"), flatten(materialAmbient));
-    gl.uniform4fv(gl.getUniformLocation(program, "materialDiffuse"), flatten(materialDiffuse));
-    gl.uniform4fv(gl.getUniformLocation(program, "materialSpecular"), flatten(materialSpecular));
-    gl.uniform4fv(gl.getUniformLocation(program, "materialSininess"), flatten(materialShininess));
-
     modelViewMatrix = lookAt(eye, at, up);
     projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
 
@@ -237,6 +217,35 @@ window.onload = function init()
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+
+    // 깊이 테스트 활성화
+    gl.enable(gl.DEPTH_TEST);
+
+    // 조명 및 재질 속성 초기화
+    const lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+    const lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+    const lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+    const lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+
+    const materialAmbient = vec4(1.0, 0.5, 0.5, 1.0);
+    const materialDiffuse = vec4(1.0, 0.5, 0.5, 1.0);
+    const materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+    const shininess = 50.0;
+
+    // Uniform 변수 설정
+    gl.uniform4fv(gl.getUniformLocation(program, "lightAmbient"), flatten(lightAmbient));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightDiffuse"), flatten(lightDiffuse));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightSpecular"), flatten(lightSpecular));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+
+    gl.uniform4fv(gl.getUniformLocation(program, "materialAmbient"), flatten(materialAmbient));
+    gl.uniform4fv(gl.getUniformLocation(program, "materialDiffuse"), flatten(materialDiffuse));
+    gl.uniform4fv(gl.getUniformLocation(program, "materialSpecular"), flatten(materialSpecular));
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"), shininess);
+
+    // Normal Matrix 계산
+    const normalMatrix = mat3();
+    gl.uniformMatrix3fv(gl.getUniformLocation(program, "normalMatrix"), false, flatten(normalMatrix));
 
     let bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
