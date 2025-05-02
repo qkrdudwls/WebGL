@@ -13,9 +13,19 @@ let modelViewMatrix;
 let modelViewMatrixLoc;
 let projectionMatrix;
 let projectionMatrixLoc;
+
 let eye = vec3(0.0, 0.0, 1.5);
 let at = vec3(0.0, 0.0, 0.0);
 let up = vec3(0.0, 1.0, 0.0);
+
+let dragging = false;
+let lastX = 0;
+let lastY = 0;
+let azimuth = 0;
+let elevation = 0;
+let radius = 1.5;
+
+const toRadians = deg => deg * Math.PI / 100;
 
 let cameras = {
     front: vec3(0.0, 0.0, 1.5),
@@ -37,6 +47,15 @@ function setCameraView (view) {
 function updateCamera() {
     modelViewMatrix = lookAt(eye, at, up);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+}
+
+function updateEyePosition() {
+    const radAz = toRadians(azimuth);
+    const radEl = toRadians(elevation);
+
+    eye[0] = radius * Math.cos(radEl) * Math.sin(radAz);
+    eye[1] = radius * Math.sin(radEl);
+    eye[2] = radius * Math.cos(radEl) * Math.sin(radAz);
 }
 
 window.onload = function init()
@@ -144,6 +163,32 @@ window.onload = function init()
 
     let program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
+
+    canvas.addEventListener("mousedown", function(e) {
+        dragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+    });
+
+    canvas.addEventListener("mouseup", function() {
+        dragging = false;
+    })
+
+    canvas.addEventListener("mousemove", function(e) {
+        if (dragging) {
+            const dx = e.clientX - lastX;
+            const dy = e.clientY - lastY;
+
+            azimuth += dx * 0.5;
+            elevation += dy * 0.5;
+
+            elevation = Math.max(-89, Math.min(89, elevation));
+
+            updateEyePosition();
+            lastX = e.clientX;
+            lastY = e.clientY;
+        }
+    })
 
     modelViewMatrix = lookAt(eye, at, up);
     projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
