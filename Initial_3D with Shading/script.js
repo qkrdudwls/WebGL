@@ -11,9 +11,33 @@ let axis = -1;
 let vertices = [];
 let modelViewMatrix;
 let modelViewMatrixLoc;
+let projectionMatrix;
+let projectionMatrixLoc;
 let eye = vec3(0.0, 0.0, 1.5);
 let at = vec3(0.0, 0.0, 0.0);
 let up = vec3(0.0, 1.0, 0.0);
+
+let cameras = {
+    front: vec3(0.0, 0.0, 1.5),
+    side: vec3(1.5, 0.0, 0.0),
+    top: vec3(0.0, 1.5, 0.0)
+}
+
+function setCameraView (view) {
+    if (cameras[view]) {
+        eye =  cameras[view];
+        if (view === 'top') {
+            up = vec3(0.0, 0.0, -1.0);
+        } else {
+            up = vec3(0.0, 1.0, 0.0);
+        }
+    }
+}
+
+function updateCamera() {
+    modelViewMatrix = lookAt(eye, at, up);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+}
 
 window.onload = function init()
 {
@@ -122,10 +146,10 @@ window.onload = function init()
     gl.useProgram( program );
 
     modelViewMatrix = lookAt(eye, at, up);
-    let projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
+    projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
-    let projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
@@ -146,6 +170,7 @@ function render() {
     gl.enable( gl.DEPTH_TEST );
 
     modelViewMatrix = lookAt(eye, at, up);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
     gl.drawArrays( gl.TRIANGLES, 0, 3 );
     gl.drawArrays( gl.TRIANGLES, 1, 3 );
@@ -201,20 +226,7 @@ function render() {
         gl.drawArrays( gl.TRIANGLES, i, 3);
     }
 
-    let translationMatrix = translate(translation[0], translation[1], translation[2]);
-    let rotationMatrix = mat4();
-    rotationMatrix = mult(rotationMatrix, rotateX(theta[xAxis]));
-    rotationMatrix = mult(rotationMatrix, rotateY(theta[yAxis]));
-    rotationMatrix = mult(rotationMatrix, rotateZ(theta[zAxis]));
-    let scalingMatrix = scalem(scaleFactor, scaleFactor, scaleFactor);
-    
-    let transformMatrix = mat4();
-    transformMatrix = mult(transformMatrix, scalingMatrix);
-    transformMatrix = mult(transformMatrix, rotationMatrix);
-    transformMatrix = mult(transformMatrix, translationMatrix);
-    
-    let finalMatrix = mult(modelViewMatrix, transformMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(finalMatrix));
-
     requestAnimationFrame(render); 
 }
+
+window.setCameraView = setCameraView;

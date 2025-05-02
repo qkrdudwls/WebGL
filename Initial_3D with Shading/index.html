@@ -25,6 +25,11 @@
         <script src="script.js"></script>
     </head>
     <body>
+        <div>
+            <input id="FrontButton" type="button" value="Front View" onclick="setCameraView('front')">
+            <input id="SideButton" type="button" value="Side View" onclick="setCameraView('side')">
+            <input id="TopButton" type="button" value="Top View" onclick="setCameraView('top')">   
+        </div>
         <canvas id="glCanvas" width="500" height="500"></canvas>
     </body>
 </html>
