@@ -77,41 +77,38 @@ window.onload = function init()
     }
 
     createSide (0, 1);
-    createSide (0, 2);
     createSide (1, 3);
     createSide (2, 4);
     createSide (4, 5);
-    createSide (5, 7);
-    createSide (6, 8);
+    createSide (5, 3);
     createSide (7, 9);
-    createSide (8, 9); 
+    createSide (9, 8);
+    createSide (8, 6);
+    createSide (2, 0);
 
-    createSide (10, 11);
     createSide (10, 12);
-    createSide (12, 13);
-    createSide (11, 14);
-    createSide (13, 15);
+    createSide (12, 15);
     createSide (15, 16);
-    createSide (14, 17);
     createSide (16, 18);
-    createSide (17, 19);
     createSide (18, 20);
-    createSide (19, 21);
-    createSide (20, 21); 
+    createSide (20, 21);
+    createSide (21, 19);
+    createSide (19, 17);
+    createSide (17, 14);
+    createSide (14, 11);
+    createSide (11, 10);
 
     createSide (22, 23);
-    createSide (22, 24);
     createSide (23, 25);
     createSide (25, 26);
-    createSide (26, 28);
     createSide (28, 30);
     createSide (30, 32);
     createSide (32, 33);
-    createSide (33, 34);
-    createSide (27, 36);
+    createSide (33, 22);
+    createSide (36, 27);
     createSide (27, 29);
     createSide (29, 31);
-    createSide (31, 36); 
+    createSide (31, 36);
 
     vertices = frontVertices.concat(backVertices, sideVertices);
 
@@ -197,7 +194,7 @@ function render() {
     gl.drawArrays( gl.TRIANGLES, 70, 3 );
     gl.drawArrays( gl.TRIANGLES, 71, 3 );
 
-    for (let i = 72; i < vertices.length; i += 3 ) {
+    for (let i = 74; i < vertices.length; i += 3 ) {
         gl.drawArrays( gl.TRIANGLES, i, 3);
     }
 
