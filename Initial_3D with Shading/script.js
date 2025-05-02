@@ -28,6 +28,7 @@ window.onload = function init()
         vec3(-0.5, 0.2, 0.0),
         vec3(-0.5, 0.0, 0.0),
         vec3(-0.4, 0.0, 0.0),
+        vec3(-0.4, 0.2, 0.0),
         vec3(-0.3, 0.2, 0.0),
         vec3(-0.5, 0.0, 0.0),
         vec3(-0.4, 0.0, 0.0),
@@ -83,7 +84,7 @@ window.onload = function init()
     createSide (5, 7);
     createSide (6, 8);
     createSide (7, 9);
-    createSide (8, 9);
+    createSide (8, 9); 
 
     createSide (10, 11);
     createSide (10, 12);
@@ -96,7 +97,7 @@ window.onload = function init()
     createSide (17, 19);
     createSide (18, 20);
     createSide (19, 21);
-    createSide (20, 21);
+    createSide (20, 21); 
 
     createSide (22, 23);
     createSide (22, 24);
@@ -110,7 +111,7 @@ window.onload = function init()
     createSide (27, 36);
     createSide (27, 29);
     createSide (29, 31);
-    createSide (31, 36);
+    createSide (31, 36); 
 
     vertices = frontVertices.concat(backVertices, sideVertices);
 
@@ -196,7 +197,7 @@ function render() {
     gl.drawArrays( gl.TRIANGLES, 70, 3 );
     gl.drawArrays( gl.TRIANGLES, 71, 3 );
 
-    for (let i = 72; i <= 276; i+=3 ) {
+    for (let i = 72; i <= vertices.length; i += 3 ) {
         gl.drawArrays( gl.TRIANGLES, i, 3);
     }
 
