@@ -197,7 +197,7 @@ function render() {
     gl.drawArrays( gl.TRIANGLES, 70, 3 );
     gl.drawArrays( gl.TRIANGLES, 71, 3 );
 
-    for (let i = 72; i <= vertices.length; i += 3 ) {
+    for (let i = 72; i < vertices.length; i += 3 ) {
         gl.drawArrays( gl.TRIANGLES, i, 3);
     }
 
