@@ -105,8 +105,8 @@ window.onload = function init()
     createSide (25, 26);
     createSide (26, 28);
     createSide (28, 30);
-    createSide (30, 31);
-    createSide (31, 33);
+    createSide (30, 32);
+    createSide (32, 33);
     createSide (33, 34);
     createSide (27, 36);
     createSide (27, 29);
