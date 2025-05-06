@@ -218,10 +218,6 @@ window.onload = function init()
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 
-    // 깊이 테스트 활성화
-    gl.enable(gl.DEPTH_TEST);
-
-    // 조명 및 재질 속성 초기화
     const lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
     const lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
     const lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
