@@ -14,7 +14,7 @@ let modelViewMatrixLoc;
 let projectionMatrix;
 let projectionMatrixLoc;
 
-let eye = vec3(0.0, 1.0, 1.5);
+let eye = vec3(0.0, 0.0, 1.5);
 let at = vec3(0.0, 0.0, 0.0);
 let up = vec3(0.0, 1.0, 0.0);
 
