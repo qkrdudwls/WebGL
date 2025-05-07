@@ -246,10 +246,7 @@ window.onload = function init()
     );
     const normalMatrix = transpose(inverse(mv3x3));
     console.log("Normal Matrix:", normalMatrix);    
-    
-    //const normalMatrix = mat3();
-    //const normalMatrix = transpose(inverse(mat3(modelViewMatrix)));
-    //console.log(normalMatrix);
+
     gl.uniformMatrix3fv(gl.getUniformLocation(program, "normalMatrix"), false, flatten(normalMatrix));
 
     let bufferId = gl.createBuffer();
@@ -295,11 +292,6 @@ window.onload = function init()
             lastY = e.clientY;
         }
     })
-    console.log("Model View Matrix:", modelViewMatrix);
-    console.log("Determinant of modelViewMatrix:", determinant(modelViewMatrix));
-    console.log("Determinant of normalMatrix:", determinant(normalMatrix));
-
-    console.log("Normals:", normals);
 
     render();
 };
