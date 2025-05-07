@@ -14,7 +14,7 @@ let modelViewMatrixLoc;
 let projectionMatrix;
 let projectionMatrixLoc;
 
-let eye = vec3(0.0, 0.0, 1.5);
+let eye = vec3(0.0, 1.0, 1.5);
 let at = vec3(0.0, 0.0, 0.0);
 let up = vec3(0.0, 1.0, 0.0);
 
@@ -24,6 +24,16 @@ let lastY = 0;
 let azimuth = 0;
 let elevation = 0;
 let radius = 1.5;
+
+let lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+let lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+let lightDiffuse = vec4(1.0, 1.0, 0.0, 1.0);
+let lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+
+let materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+let materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+let materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
+let materialShininess = 100.0;
 
 const toRadians = deg => deg * Math.PI / 100;
 
@@ -218,29 +228,28 @@ window.onload = function init()
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 
-    const lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-    const lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-    const lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-    const lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+    let ambientProduct = mult(lightAmbient, materialAmbient);
+    let diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    let specularProduct = mult(lightSpecular, materialSpecular);
 
-    const materialAmbient = vec4(1.0, 0.5, 0.5, 1.0);
-    const materialDiffuse = vec4(1.0, 0.5, 0.5, 1.0);
-    const materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-    const shininess = 50.0;
-
-    // Uniform 변수 설정
-    gl.uniform4fv(gl.getUniformLocation(program, "lightAmbient"), flatten(lightAmbient));
-    gl.uniform4fv(gl.getUniformLocation(program, "lightDiffuse"), flatten(lightDiffuse));
-    gl.uniform4fv(gl.getUniformLocation(program, "lightSpecular"), flatten(lightSpecular));
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
 
-    gl.uniform4fv(gl.getUniformLocation(program, "materialAmbient"), flatten(materialAmbient));
-    gl.uniform4fv(gl.getUniformLocation(program, "materialDiffuse"), flatten(materialDiffuse));
-    gl.uniform4fv(gl.getUniformLocation(program, "materialSpecular"), flatten(materialSpecular));
-    gl.uniform1f(gl.getUniformLocation(program, "shininess"), shininess);
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
 
-    // Normal Matrix 계산
-    const normalMatrix = mat3();
+    const mv3x3 = mat3(
+        modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2],
+        modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2],
+        modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2]
+    );
+    const normalMatrix = transpose(inverse(mv3x3));
+    console.log("Normal Matrix:", normalMatrix);    
+    
+    //const normalMatrix = mat3();
+    //const normalMatrix = transpose(inverse(mat3(modelViewMatrix)));
+    //console.log(normalMatrix);
     gl.uniformMatrix3fv(gl.getUniformLocation(program, "normalMatrix"), false, flatten(normalMatrix));
 
     let bufferId = gl.createBuffer();
@@ -286,9 +295,23 @@ window.onload = function init()
             lastY = e.clientY;
         }
     })
+    console.log("Model View Matrix:", modelViewMatrix);
+    console.log("Determinant of modelViewMatrix:", determinant(modelViewMatrix));
+    console.log("Determinant of normalMatrix:", determinant(normalMatrix));
+
+    console.log("Normals:", normals);
 
     render();
 };
+
+function determinant(mat) {
+    if (mat.length === 3 && mat[0].length === 3) {
+        return mat[0][0] * (mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1]) -
+               mat[0][1] * (mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0]) +
+               mat[0][2] * (mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0]);
+    }
+    return null;
+}
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
