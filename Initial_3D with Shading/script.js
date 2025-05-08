@@ -9,8 +9,12 @@ let zAxis = 2;
 let axis = -1;
 
 let vertices = [];
-let pointsArrays = [];
-let normalArrays = [];
+let pointsArraysY = [];
+let pointsArraysJ = [];
+let pointsArraysP = [];
+let normalArraysY = [];
+let normalArraysJ = [];
+let normalArraysP = [];
 
 let modelViewMatrix;
 let modelViewMatrixLoc;
@@ -45,6 +49,11 @@ let cameras = {
     side: vec3(1.5, 0.0, 0.0),
     top: vec3(0.0, 1.5, 0.0)
 }
+
+let vPosition;
+let vNormal;
+let vBufferY, vBufferJ, vBufferP;
+let vNormalY, vNormalJ, vNormalP;
 
 window.onload = function init()
 {
@@ -124,11 +133,11 @@ window.onload = function init()
         vec4(0.2, 0.1, 0.0, 1.0),
         vec4(0.2, 0.2, 0.0, 1.0),
         vec4(0.4, 0.2, 0.0, 1.0),
-        vec4(0.5, 0.2, 0.0, 1.0),
+        vec4(0.5, 0.1, 0.0, 1.0),
         vec4(0.2, 0.1, -0.1, 1.0),
         vec4(0.2, 0.2, -0.1, 1.0),
         vec4(0.4, 0.2, -0.1, 1.0),
-        vec4(0.5, 0.2, -0.1, 1.0),
+        vec4(0.5, 0.1, -0.1, 1.0),
 
         vec4(0.2, 0.0, 0.0, 1.0),
         vec4(0.2, 0.1, 0.0, 1.0),
@@ -170,10 +179,25 @@ window.onload = function init()
     colorInitial();
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 1., 1., 1.0, 1.0 );
+    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
     let program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
+
+    vPosition = gl.getAttribLocation(program, "vPosition");
+    vNormal = gl.getAttribLocation(program, "vNormal");
+
+    vBufferY = gl.createBuffer();
+    vBufferJ = gl.createBuffer();
+    vBufferP = gl.createBuffer();
+    vNormalY = gl.createBuffer();
+    vNormalJ = gl.createBuffer();
+    vNormalP = gl.createBuffer();
+
+    setupBuffers();
+
+    gl.enableVertexAttribArray(vPosition);
+    gl.enableVertexAttribArray(vNormal);
 
     modelViewMatrix = lookAt(eye, at, up);
     projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
@@ -196,22 +220,6 @@ window.onload = function init()
     gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess); 
 
     gl.uniformMatrix3fv(gl.getUniformLocation(program, "normalMatrix"), false, flatten(normalMatrix));
-
-    let nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normalArrays), gl.STATIC_DRAW );
-
-    let vBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArrays), gl.STATIC_DRAW );
-
-    let vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
-
-    let vNormal = gl.getAttribLocation(program, "vNormal");
-    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vNormal);
 
     canvas.addEventListener("mousedown", function(e) {
         dragging = true;
@@ -242,6 +250,23 @@ window.onload = function init()
     render();
 };
 
+function setupBuffers() {
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBufferY);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArraysY), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vNormalY);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normalArraysY), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBufferJ);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArraysJ), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vNormalJ);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normalArraysJ), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBufferP);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArraysP), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vNormalP);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normalArraysP), gl.STATIC_DRAW);
+}
+
 function quad(a, b, c, d) {
     let t1 = subtract(vertices[b], vertices[a]);
     let t2 = subtract(vertices[c], vertices[b]);
@@ -264,14 +289,65 @@ function quad(a, b, c, d) {
 }
 
 function colorInitial() {
-    for ( let i = 0; i < vertices.length; i += 8 ){
-        quad( i + 1, i, i + 3, i + 2 );
-        quad( i + 2, i + 3, i + 7, i + 6);
-        quad( i + 3, i , i + 4, i + 7 );
-        quad( i + 6, i + 5, i + 1, i + 2 );
-        quad( i + 4, i + 5, i + 6, i + 7 );
-        quad( i + 5, i + 4, i, i + 1 );    
+    for (let i = 0; i < 24; i += 8) {
+        quadForLetter(i + 1, i, i + 3, i + 2, 'Y');
+        quadForLetter(i + 2, i + 3, i + 7, i + 6, 'Y');
+        quadForLetter(i + 3, i, i + 4, i + 7, 'Y');
+        quadForLetter(i + 6, i + 5, i + 1, i + 2, 'Y');
+        quadForLetter(i + 4, i + 5, i + 6, i + 7, 'Y');
+        quadForLetter(i + 5, i + 4, i, i + 1, 'Y');
     }
+
+    for (let i = 24; i < 56; i += 8) {
+        quadForLetter(i + 1, i, i + 3, i + 2, 'J');
+        quadForLetter(i + 2, i + 3, i + 7, i + 6, 'J');
+        quadForLetter(i + 3, i, i + 4, i + 7, 'J');
+        quadForLetter(i + 6, i + 5, i + 1, i + 2, 'J');
+        quadForLetter(i + 4, i + 5, i + 6, i + 7, 'J');
+        quadForLetter(i + 5, i + 4, i, i + 1, 'J');
+    }
+
+    for (let i = 56; i < 96; i += 8) {
+        quadForLetter(i + 1, i, i + 3, i + 2, 'P');
+        quadForLetter(i + 2, i + 3, i + 7, i + 6, 'P');
+        quadForLetter(i + 3, i, i + 4, i + 7, 'P');
+        quadForLetter(i + 6, i + 5, i + 1, i + 2, 'P');
+        quadForLetter(i + 4, i + 5, i + 6, i + 7, 'P');
+        quadForLetter(i + 5, i + 4, i, i + 1, 'P');
+    }
+}
+
+function quadForLetter(a, b, c, d, letter) {
+    let t1 = subtract(vertices[b], vertices[a]);
+    let t2 = subtract(vertices[c], vertices[b]);
+    let normal = cross(t1, t2);
+    normal = vec3(normal);
+
+    let pointsArray, normalArray;
+    if (letter === 'Y') {
+        pointsArray = pointsArraysY;
+        normalArray = normalArraysY;
+    } else if (letter === 'J') {
+        pointsArray = pointsArraysJ;
+        normalArray = normalArraysJ;
+    } else {
+        pointsArray = pointsArraysP;
+        normalArray = normalArraysP;
+    }
+
+    pointsArray.push(vertices[a]);
+    normalArray.push(normal);
+    pointsArray.push(vertices[b]);
+    normalArray.push(normal);
+    pointsArray.push(vertices[c]);
+    normalArray.push(normal);
+    
+    pointsArray.push(vertices[a]);
+    normalArray.push(normal);
+    pointsArray.push(vertices[c]);
+    normalArray.push(normal);
+    pointsArray.push(vertices[d]);
+    normalArray.push(normal);
 }
 
 function setCameraView (view) {
@@ -302,15 +378,30 @@ function updateEyePosition() {
 }
 
 function render() {
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-    gl.enable( gl.DEPTH_TEST );
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     modelViewMatrix = lookAt(eye, at, up);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
-    gl.drawArrays( gl.TRIANGLES, 0, pointsArrays.length);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBufferY);
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vNormalY);
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, pointsArraysY.length);
 
-    requestAnimationFrame(render); 
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBufferJ);
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vNormalJ);
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, pointsArraysJ.length);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBufferP);
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vNormalP);
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, pointsArraysP.length);
+
+    requestAnimationFrame(render);
 }
 
 window.setCameraView = setCameraView;
