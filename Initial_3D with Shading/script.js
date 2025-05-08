@@ -42,6 +42,8 @@ let materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 let materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
 let materialShininess = 100.0;
 
+let backgroundColor = false;
+
 const toRadians = deg => deg * Math.PI / 180;
 
 let cameras = {
@@ -220,6 +222,17 @@ window.onload = function init()
     gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess); 
 
     gl.uniformMatrix3fv(gl.getUniformLocation(program, "normalMatrix"), false, flatten(normalMatrix));
+
+    document.getElementById( "Background" ).onclick = function () {
+        backgroundColor = !backgroundColor;
+        if (backgroundColor) {
+            document.getElementById( "Background" ).value = "White"; 
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        } else {
+            document.getElementById( "Background" ).value = "Black";
+            gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        }
+    }
 
     canvas.addEventListener("mousedown", function(e) {
         dragging = true;
