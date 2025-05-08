@@ -360,6 +360,16 @@ function updateCamera() {
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 }
 
+function setLight(light) {
+    if (light === 'point') {
+        lightPosition = vec4(1.0, 1.0, 1.0, 1.0);
+    } else if (light === 'directional') {
+        lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+    }
+    
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+}
+
 function updateEyePosition() {
     const radAz = toRadians(azimuth);
     const radEl = toRadians(elevation);
