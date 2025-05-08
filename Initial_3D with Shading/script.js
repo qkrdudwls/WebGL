@@ -242,7 +242,7 @@ window.onload = function init()
 
     canvas.addEventListener("mouseup", function() {
         dragging = false;
-    })
+    });
 
     canvas.addEventListener("mousemove", function(e) {
         if (dragging) {
@@ -258,7 +258,34 @@ window.onload = function init()
             lastX = e.clientX;
             lastY = e.clientY;
         }
-    })
+    });
+
+    document.addEventListener("keydown", function (e) {
+        const step = 0.1;
+
+        switch (e.key) {
+            case "w" :
+                lightPosition[1] += step;
+                break;
+            case "s" :
+                lightPosition[1] -= step;
+                break;
+            case "a" :
+                lightPosition[0] -= step;
+                break;
+            case "d" :
+                lightPosition[0] += step;
+                break;
+            case "q" :
+                lightPosition[2] -= step;
+                break;
+            case "e" :
+                lightPosition[2] += step;
+                break;
+        }
+
+        gl.uniform4fv(gl.getUniformLocation(gl.getParameter(gl.CURRENT_PROGRAM), "lightPosition"), flatten(lightPosition));
+    });
 
     render();
 };
