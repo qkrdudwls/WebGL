@@ -315,7 +315,9 @@ function quad(a, b, c, d, letter) {
     let normal = cross(t1, t2);
     normal = vec3(normal);
 
-    let pointsArray, normalArray;
+    let pointsArray;
+    let normalArray;
+
     if (letter === 'Y') {
         pointsArray = pointsArraysY;
         normalArray = normalArraysY;
