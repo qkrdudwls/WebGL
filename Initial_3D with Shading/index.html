@@ -58,6 +58,16 @@
         <script src="script.js"></script>
     </head>
     <body>
+        <div>
+            <B>Background Color:</B> 
+            <input id="Background" type="button" value="Black" onclick="
+            if (document.querySelector( '#Background' ).value == 'Black') {
+                document.querySelector( '#Background' ).value = 'White';
+            } else {
+                document.querySelector( '#Background' ).value = 'Black';
+            }
+            ">
+        </div>
         <canvas id="glCanvas" width="500" height="500"></canvas>
         <div>
             <input id="FrontButton" type="button" value="Front View" onclick="setCameraView('front')">
