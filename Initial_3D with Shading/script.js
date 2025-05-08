@@ -280,57 +280,36 @@ function setupBuffers() {
     gl.bufferData(gl.ARRAY_BUFFER, flatten(normalArraysP), gl.STATIC_DRAW);
 }
 
-function quad(a, b, c, d) {
-    let t1 = subtract(vertices[b], vertices[a]);
-    let t2 = subtract(vertices[c], vertices[b]);
-    let normal = cross(t1, t2);
-    normal = vec3(normal);
-
-    pointsArrays.push(vertices[a]);
-    normalArrays.push(normal);
-    pointsArrays.push(vertices[b]);
-    normalArrays.push(normal);
-    pointsArrays.push(vertices[c]);
-    normalArrays.push(normal);
-    
-    pointsArrays.push(vertices[a]);
-    normalArrays.push(normal);
-    pointsArrays.push(vertices[c]);
-    normalArrays.push(normal);
-    pointsArrays.push(vertices[d]);
-    normalArrays.push(normal);
-}
-
 function colorInitial() {
     for (let i = 0; i < 24; i += 8) {
-        quadForLetter(i + 1, i, i + 3, i + 2, 'Y');
-        quadForLetter(i + 2, i + 3, i + 7, i + 6, 'Y');
-        quadForLetter(i + 3, i, i + 4, i + 7, 'Y');
-        quadForLetter(i + 6, i + 5, i + 1, i + 2, 'Y');
-        quadForLetter(i + 4, i + 5, i + 6, i + 7, 'Y');
-        quadForLetter(i + 5, i + 4, i, i + 1, 'Y');
+        quad(i + 1, i, i + 3, i + 2, 'Y');
+        quad(i + 2, i + 3, i + 7, i + 6, 'Y');
+        quad(i + 3, i, i + 4, i + 7, 'Y');
+        quad(i + 6, i + 5, i + 1, i + 2, 'Y');
+        quad(i + 4, i + 5, i + 6, i + 7, 'Y');
+        quad(i + 5, i + 4, i, i + 1, 'Y');
     }
 
     for (let i = 24; i < 56; i += 8) {
-        quadForLetter(i + 1, i, i + 3, i + 2, 'J');
-        quadForLetter(i + 2, i + 3, i + 7, i + 6, 'J');
-        quadForLetter(i + 3, i, i + 4, i + 7, 'J');
-        quadForLetter(i + 6, i + 5, i + 1, i + 2, 'J');
-        quadForLetter(i + 4, i + 5, i + 6, i + 7, 'J');
-        quadForLetter(i + 5, i + 4, i, i + 1, 'J');
+        quad(i + 1, i, i + 3, i + 2, 'J');
+        quad(i + 2, i + 3, i + 7, i + 6, 'J');
+        quad(i + 3, i, i + 4, i + 7, 'J');
+        quad(i + 6, i + 5, i + 1, i + 2, 'J');
+        quad(i + 4, i + 5, i + 6, i + 7, 'J');
+        quad(i + 5, i + 4, i, i + 1, 'J');
     }
 
     for (let i = 56; i < 96; i += 8) {
-        quadForLetter(i + 1, i, i + 3, i + 2, 'P');
-        quadForLetter(i + 2, i + 3, i + 7, i + 6, 'P');
-        quadForLetter(i + 3, i, i + 4, i + 7, 'P');
-        quadForLetter(i + 6, i + 5, i + 1, i + 2, 'P');
-        quadForLetter(i + 4, i + 5, i + 6, i + 7, 'P');
-        quadForLetter(i + 5, i + 4, i, i + 1, 'P');
+        quad(i + 1, i, i + 3, i + 2, 'P');
+        quad(i + 2, i + 3, i + 7, i + 6, 'P');
+        quad(i + 3, i, i + 4, i + 7, 'P');
+        quad(i + 6, i + 5, i + 1, i + 2, 'P');
+        quad(i + 4, i + 5, i + 6, i + 7, 'P');
+        quad(i + 5, i + 4, i, i + 1, 'P');
     }
 }
 
-function quadForLetter(a, b, c, d, letter) {
+function quad(a, b, c, d, letter) {
     let t1 = subtract(vertices[b], vertices[a]);
     let t2 = subtract(vertices[c], vertices[b]);
     let normal = cross(t1, t2);
