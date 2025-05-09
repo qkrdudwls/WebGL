@@ -70,14 +70,15 @@
         </div>
         <canvas id="glCanvas" width="500" height="500"></canvas>
         <div>
-            <h3>Camera</h3>
+            <h3>Camera Location</h3>
             <input id="FrontButton" type="button" value="Front View" onclick="setCameraView('front')">
-            <input id="SideButton" type="button" value="Side View" onclick="setCameraView('side')">
+            <input id="LeftSideButton" type="button" value="Left Side View" onclick="setCameraView('leftside')">
+            <input id="RightSideButton" type="button" value="Right Side View" onclick="setCameraView('rightside')">
             <input id="TopButton" type="button" value="Top View" onclick="setCameraView('top')">
             <input id="BackButton" type="button" value="Back View" onclick="setCameraView('back')">  
         </div>
         <div>
-            <h3>Light</h3>
+            <h3>Light Type</h3>
             <input id="PointLight" type="button" value="Point Light" onclick="setLight('point')">
             <input id="DirectionalLight" type="button" value="Directional Light" onclick="setLight('directional')">
         </div>
