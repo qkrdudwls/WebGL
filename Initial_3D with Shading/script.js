@@ -385,9 +385,11 @@ function setCameraView(view) {
     animateCamera(targetEye, targetUp);
 
     document.getElementById("FrontButton").style.backgroundColor = "";
-    document.getElementById("SideButton").style.backgroundColor = "";
+    document.getElementById("LeftSideButton").style.backgroundColor = "";
+    document.getElementById("RightSideButton").style.backgroundColor = "";
     document.getElementById("TopButton").style.backgroundColor = "";
     document.getElementById("BackButton").style.backgroundColor = "";
+
     document.getElementById(view + "Button").style.backgroundColor = "#4CAF50";
 }
 
