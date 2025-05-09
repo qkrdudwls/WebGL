@@ -204,7 +204,7 @@ window.onload = function init()
     gl.enableVertexAttribArray(vNormal);
 
     modelViewMatrix = lookAt(eye, at, up);
-    projectionMatrix = perspective(45, canvas.width / canvas.height, 0.1, 10.0);
+    projectionMatrix = perspective(60, canvas.width / canvas.height, 0.1, 20.0);
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
@@ -236,31 +236,7 @@ window.onload = function init()
         }
     }
 
-    canvas.addEventListener("mousedown", function(e) {
-        dragging = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
-    });
-
-    canvas.addEventListener("mouseup", function() {
-        dragging = false;
-    });
-
-    canvas.addEventListener("mousemove", function(e) {
-        if (dragging) {
-            const dx = e.clientX - lastX;
-            const dy = e.clientY - lastY;
-
-            azimuth += dx * 0.5;
-            elevation += dy * 0.5;
-
-            elevation = Math.max(-89, Math.min(89, elevation));
-
-            updateEyePosition();
-            lastX = e.clientX;
-            lastY = e.clientY;
-        }
-    });
+    initOrbitControl(canvas);
 
     render();
 };
@@ -346,35 +322,67 @@ function quad(a, b, c, d, letter) {
     normalArray.push(normal);
 }
 
-function setCameraView (view) {
+function animateCamera(targetEye, targetUp, duration = 1000) {
+    const startEye = vec3(eye[0], eye[1], eye[2]);
+    const startUp = vec3(up[0], up[1], up[2]);
+    const startTime = Date.now();
+
+    function update() {
+        const currentTime = Date.now();
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        
+        eye = vec3(
+            startEye[0] + (targetEye[0] - startEye[0]) * easeProgress,
+            startEye[1] + (targetEye[1] - startEye[1]) * easeProgress,
+            startEye[2] + (targetEye[2] - startEye[2]) * easeProgress
+        );
+        
+        up = normalize(vec3(
+            startUp[0] + (targetUp[0] - startUp[0]) * easeProgress,
+            startUp[1] + (targetUp[1] - startUp[1]) * easeProgress,
+            startUp[2] + (targetUp[2] - startUp[2]) * easeProgress
+        ));
+
+        updateCamera();
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+
+    requestAnimationFrame(update);
+}
+
+function setCameraView(view) {
+    let targetEye, targetUp;
+    
     switch (view) {
         case 'front':
-            eye = vec3(0.0, 0.0, radius);
-            up = vec3(0.0, 1.0, 0.0);
-            azimuth = 0;
-            elevation = 0;
+            targetEye = vec3(0.0, 0.0, radius);
+            targetUp = vec3(0.0, 1.0, 0.0);
             break;
-        case 'side':
-            eye = vec3(radius, 0.0, 0.0);
-            up = vec3(0.0, 1.0, 0.0);
-            azimuth = -90;
-            elevation = 0;
+        case 'leftside':
+            targetEye = vec3(-radius, 0.0, 0.0);
+            targetUp = vec3(0.0, 1.0, 0.0);
+            break;
+        case 'rightside':
+            targetEye = vec3(radius, 0.0, 0.0);
+            targetUp = vec3(0.0, 1.0, 0.0);
             break;
         case 'top':
-            eye = vec3(0.0, radius, 0.0);
-            up = vec3(0.0, 0.0, -1.0);
-            azimuth = 0;
-            elevation = -90;
+            targetEye = vec3(0.0, radius, 0.0);
+            targetUp = vec3(0.0, 0.0, -1.0);
             break;
         case 'back':
-            eye = vec3(0.0, 0.0, -radius);
-            up = vec3(0.0, 1.0, 0.0);
-            azimuth = 180;
-            elevation = 0;
+            targetEye = vec3(0.0, 0.0, -radius);
+            targetUp = vec3(0.0, 1.0, 0.0);
             break;
     }
 
-    updateCamera();
+    animateCamera(targetEye, targetUp);
 
     document.getElementById("FrontButton").style.backgroundColor = "";
     document.getElementById("SideButton").style.backgroundColor = "";
@@ -429,6 +437,64 @@ document.addEventListener("keydown", function (e) {
 
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
 });
+
+function initOrbitControl(canvas) {
+    let rotationMatrix = mat4();
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let mouseDown = false;
+
+    canvas.addEventListener("mousedown", function(event) {
+        mouseDown = true;
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+    });
+
+    canvas.addEventListener("mouseup", function() {
+        mouseDown = false;
+    });
+
+    canvas.addEventListener("mousemove", function(event) {
+        if (!mouseDown) {
+            return;
+        }
+
+        let newX = event.clientX;
+        let newY = event.clientY;
+
+        let deltaX = newX - lastMouseX;
+        let deltaY = newY - lastMouseY;
+
+        let rotation = mat4();
+        rotation = mult(rotation, rotate(deltaY / 5, vec3(1, 0, 0)));
+        rotation = mult(rotation, rotate(deltaX / 5, vec3(0, 1, 0)));
+
+        rotationMatrix = mult(rotation, rotationMatrix);
+        
+        let rotatedEye = mult(rotationMatrix, vec4(0, 0, radius, 1));
+        eye = vec3(rotatedEye[0], rotatedEye[1], rotatedEye[2]);
+        
+        let rotatedUp = mult(rotationMatrix, vec4(0, 1, 0, 0));
+        up = normalize(vec3(rotatedUp[0], rotatedUp[1], rotatedUp[2]));
+
+        updateCamera();
+
+        lastMouseX = newX;
+        lastMouseY = newY;
+    });
+
+    canvas.addEventListener("wheel", function(event) {
+        event.preventDefault();
+     
+        let zoomSensitivity = 0.001;
+        radius = Math.max(1.0, Math.min(5.0, radius + event.deltaY * zoomSensitivity));
+        
+        let direction = normalize(subtract(eye, at));
+        eye = add(at, scale(radius, direction));
+        
+        updateCamera();
+    });
+}
 
 function updateEyePosition() {
     const radAz = toRadians(azimuth);
