@@ -358,27 +358,33 @@ function animateCamera(targetEye, targetUp, duration = 1000) {
 
 function setCameraView(view) {
     let targetEye, targetUp;
-    
+    let button;
+
     switch (view) {
         case 'front':
             targetEye = vec3(0.0, 0.0, radius);
             targetUp = vec3(0.0, 1.0, 0.0);
+            button = "Front";
             break;
         case 'leftside':
             targetEye = vec3(-radius, 0.0, 0.0);
             targetUp = vec3(0.0, 1.0, 0.0);
+            button = "LeftSide";
             break;
         case 'rightside':
             targetEye = vec3(radius, 0.0, 0.0);
             targetUp = vec3(0.0, 1.0, 0.0);
+            button = "RightSide";
             break;
         case 'top':
             targetEye = vec3(0.0, radius, 0.0);
             targetUp = vec3(0.0, 0.0, -1.0);
+            button = "Top";
             break;
         case 'back':
             targetEye = vec3(0.0, 0.0, -radius);
             targetUp = vec3(0.0, 1.0, 0.0);
+            button = "Back";
             break;
     }
 
@@ -390,7 +396,7 @@ function setCameraView(view) {
     document.getElementById("TopButton").style.backgroundColor = "";
     document.getElementById("BackButton").style.backgroundColor = "";
 
-    document.getElementById(view + "Button").style.backgroundColor = "#4CAF50";
+    document.getElementById(button + "Button").style.backgroundColor = "#4CAF50";
 }
 
 function updateCamera() {
