@@ -347,14 +347,40 @@ function quad(a, b, c, d, letter) {
 }
 
 function setCameraView (view) {
-    if (cameras[view]) {
-        eye =  cameras[view];
-        if (view === 'top') {
-            up = vec3(0.0, 0.0, -1.0);
-        } else {
+    switch (view) {
+        case 'front':
+            eye = vec3(0.0, 0.0, radius);
             up = vec3(0.0, 1.0, 0.0);
-        }
+            azimuth = 0;
+            elevation = 0;
+            break;
+        case 'side':
+            eye = vec3(radius, 0.0, 0.0);
+            up = vec3(0.0, 1.0, 0.0);
+            azimuth = -90;
+            elevation = 0;
+            break;
+        case 'top':
+            eye = vec3(0.0, radius, 0.0);
+            up = vec3(0.0, 0.0, -1.0);
+            azimuth = 0;
+            elevation = -90;
+            break;
+        case 'back':
+            eye = vec3(0.0, 0.0, -radius);
+            up = vec3(0.0, 1.0, 0.0);
+            azimuth = 180;
+            elevation = 0;
+            break;
     }
+
+    updateCamera();
+
+    document.getElementById("FrontButton").style.backgroundColor = "";
+    document.getElementById("SideButton").style.backgroundColor = "";
+    document.getElementById("TopButton").style.backgroundColor = "";
+    document.getElementById("BackButton").style.backgroundColor = "";
+    document.getElementById(view + "Button").style.backgroundColor = "#4CAF50";
 }
 
 function updateCamera() {
