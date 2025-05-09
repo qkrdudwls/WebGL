@@ -57,6 +57,8 @@ let vNormal;
 let vBufferY, vBufferJ, vBufferP;
 let vNormalY, vNormalJ, vNormalP;
 
+let program;
+
 window.onload = function init()
 {
     let canvas = document.getElementById( "glCanvas" );
@@ -183,7 +185,7 @@ window.onload = function init()
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
-    let program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
     vPosition = gl.getAttribLocation(program, "vPosition");
@@ -258,33 +260,6 @@ window.onload = function init()
             lastX = e.clientX;
             lastY = e.clientY;
         }
-    });
-
-    document.addEventListener("keydown", function (e) {
-        const step = 0.1;
-
-        switch (e.key) {
-            case "w" :
-                lightPosition[1] += step;
-                break;
-            case "s" :
-                lightPosition[1] -= step;
-                break;
-            case "a" :
-                lightPosition[0] -= step;
-                break;
-            case "d" :
-                lightPosition[0] += step;
-                break;
-            case "q" :
-                lightPosition[2] -= step;
-                break;
-            case "e" :
-                lightPosition[2] += step;
-                break;
-        }
-
-        gl.uniform4fv(gl.getUniformLocation(gl.getParameter(gl.CURRENT_PROGRAM), "lightPosition"), flatten(lightPosition));
     });
 
     render();
@@ -388,14 +363,46 @@ function updateCamera() {
 }
 
 function setLight(light) {
+    document.getElementById( "PointLight" ).style.backgroundColor = "";
+    document.getElementById( "DirectionalLight" ).style.backgroundColor = "";
+
     if (light === 'point') {
         lightPosition = vec4(1.0, 1.0, 1.0, 1.0);
+        document.getElementById( "PointLight" ).style.backgroundColor = "#4CAF50";
     } else if (light === 'directional') {
         lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+        document.getElementById( "DirectionalLight" ).style.backgroundColor = "#4CAF50";
     }
     
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
 }
+
+document.addEventListener("keydown", function (e) {
+    const step = 0.1;
+
+    switch (e.key) {
+        case "w": 
+            lightPosition[1] += step; 
+            break;
+        case "s": 
+            lightPosition[1] -= step; 
+            break;
+        case "a": 
+            lightPosition[0] -= step; 
+            break;
+        case "d": 
+            lightPosition[0] += step; 
+            break;
+        case "q": 
+            lightPosition[2] -= step; 
+            break;
+        case "e": 
+            lightPosition[2] += step; 
+            break;
+    }
+
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+});
 
 function updateEyePosition() {
     const radAz = toRadians(azimuth);
