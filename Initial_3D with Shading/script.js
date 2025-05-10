@@ -117,7 +117,9 @@ window.onload = function init()
 
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
     document.getElementById("WhiteBackground").classList.add("active");
-    
+    document.getElementById("FrontButton").classList.add("active");
+    document.getElementById("PointLight").classList.add("active");
+
     vertices = [
         // Y
         vec4(-0.5, 0.0, 0.0, 1.0),
@@ -443,13 +445,13 @@ function setCameraView(view) {
 
     animateCamera(targetEye, targetUp);
 
-    document.getElementById("FrontButton").style.backgroundColor = "";
-    document.getElementById("LeftSideButton").style.backgroundColor = "";
-    document.getElementById("RightSideButton").style.backgroundColor = "";
-    document.getElementById("TopButton").style.backgroundColor = "";
-    document.getElementById("BackButton").style.backgroundColor = "";
+    document.getElementById("FrontButton").classList.remove("active");
+    document.getElementById("LeftSideButton").classList.remove("active");
+    document.getElementById("RightSideButton").classList.remove("active");
+    document.getElementById("TopButton").classList.remove("active");
+    document.getElementById("BackButton").classList.remove("active");
 
-    document.getElementById(button + "Button").style.backgroundColor = "#4CAF50";
+    document.getElementById(button + "Button").classList.add("active");
 }
 
 function updateCamera() {
@@ -458,15 +460,15 @@ function updateCamera() {
 }
 
 function setLight(light) {
-    document.getElementById( "PointLight" ).style.backgroundColor = "";
-    document.getElementById( "DirectionalLight" ).style.backgroundColor = "";
+    document.getElementById("PointLight").classList.remove("active");
+    document.getElementById("DirectionalLight").classList.remove("active");
 
     if (light === 'point') {
         lightPosition = vec4(1.0, 1.0, 1.0, 1.0);
-        document.getElementById( "PointLight" ).style.backgroundColor = "#4CAF50";
+        document.getElementById("PointLight").classList.add("active");
     } else if (light === 'directional') {
         lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
-        document.getElementById( "DirectionalLight" ).style.backgroundColor = "#4CAF50";
+        document.getElementById("DirectionalLight").classList.add("active");
     }
     
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
