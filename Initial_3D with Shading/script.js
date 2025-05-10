@@ -42,8 +42,6 @@ let materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 let materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
 let materialShininess = 100.0;
 
-let backgroundColor = false;
-
 const toRadians = deg => deg * Math.PI / 180;
 
 let cameras = {
@@ -117,6 +115,9 @@ window.onload = function init()
     gl.enable( gl.DEPTH_TEST );
     if ( !gl ) { alert( "WebGL is not available" ); }
 
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    document.getElementById("WhiteBackground").classList.add("active");
+    
     vertices = [
         // Y
         vec4(-0.5, 0.0, 0.0, 1.0),
@@ -275,17 +276,6 @@ window.onload = function init()
 
     gl.uniformMatrix3fv(gl.getUniformLocation(program, "normalMatrix"), false, flatten(normalMatrix));
 
-    document.getElementById( "Background" ).onclick = function () {
-        backgroundColor = !backgroundColor;
-        if (backgroundColor) {
-            document.getElementById( "Background" ).value = "White"; 
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        } else {
-            document.getElementById( "Background" ).value = "Black";
-            gl.clearColor(1.0, 1.0, 1.0, 1.0);
-        }
-    }
-
     initOrbitControl(canvas);
 
     render();
@@ -404,6 +394,19 @@ function animateCamera(targetEye, targetUp, duration = 1000) {
     }
 
     requestAnimationFrame(update);
+}
+
+function setBackground(color) {
+    document.getElementById("WhiteBackground").classList.remove("active");
+    document.getElementById("BlackBackground").classList.remove("active");
+    
+    if (color === 'white') {
+        gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        document.getElementById("WhiteBackground").classList.add("active");
+    } else {
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        document.getElementById("BlackBackground").classList.add("active");
+    }
 }
 
 function setCameraView(view) {

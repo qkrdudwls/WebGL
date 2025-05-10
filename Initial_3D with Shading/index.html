@@ -111,21 +111,17 @@
             <div class="controls">
                 <div class="control-group">
                     <h3>Background Color</h3>
-                    <input id="Background" type="button" value="Black" onclick="
-                    if (document.querySelector('#Background').value == 'Black') {
-                        document.querySelector('#Background').value = 'White';
-                    } else {
-                        document.querySelector('#Background').value = 'Black';
-                    }">
+                    <input id="WhiteBackground" type="button" value="White" onclick="setBackground('white')">
+                    <input id="BlackBackground" type="button" value="Black" onclick="setBackground('black')">
                 </div>
                 <div class="control-group">
                     <h3>Material Color</h3>
-                    <select id="materialColor" onchange="setMaterialColor(this.value)" aria-label="재질 색상 선택" title="재질 색상 선택">
-                        <option value="red">빨강</option>
-                        <option value="green">초록</option>
-                        <option value="blue">파랑</option>
-                        <option value="yellow">노랑</option>
-                        <option value="purple">보라</option>
+                    <select id="materialColor" onchange="setMaterialColor(this.value)" aria-label="Material Color" title="Material Color">
+                        <option value="red">Red</option>
+                        <option value="green">Green</option>
+                        <option value="blue">Blue</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="purple">Purple</option>
                         <option value="gold">Gold</option>
                     </select>
                 </div>
