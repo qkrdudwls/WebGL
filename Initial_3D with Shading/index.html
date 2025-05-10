@@ -67,6 +67,15 @@
                 document.querySelector( '#Background' ).value = 'Black';
             }
             ">
+            <label for="materialColor"><B>Material Color: </B></label>
+            <select id="materialColor" onchange="setMaterialColor(this.value)">
+                <option value="red">Red</option>
+                <option value="green">Green</option>
+                <option value="blue">Blue</option>
+                <option value="yellow">Yellow</option>
+                <option value="purple">Purple</option>
+                <option value="gold">Gold</option>
+            </select>
         </div>
         <canvas id="glCanvas" width="500" height="500"></canvas>
         <div>

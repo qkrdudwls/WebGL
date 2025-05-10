@@ -59,6 +59,56 @@ let vNormalY, vNormalJ, vNormalP;
 
 let program;
 
+let materialColors = {
+    red: {
+        ambient: vec4(0.2, 0.0, 0.0, 1.0),
+        diffuse: vec4(1.0, 0.0, 0.0, 1.0),
+        specular: vec4(1.0, 0.8, 0.8, 1.0)
+    },
+    green: {
+        ambient: vec4(0.0, 0.15, 0.0, 1.0),
+        diffuse: vec4(0.0, 0.6, 0.0, 1.0),
+        specular: vec4(0.6, 0.8, 0.6, 1.0)
+    },
+    blue: {
+        ambient: vec4(0.0, 0.0, 0.3, 1.0),
+        diffuse: vec4(0.0, 0.2, 1.0, 1.0),
+        specular: vec4(0.5, 0.5, 1.0, 1.0)
+    },
+    yellow: {
+        ambient: vec4(0.2, 0.2, 0.0, 1.0),
+        diffuse: vec4(1.0, 1.0, 0.0, 1.0),
+        specular: vec4(1.0, 1.0, 0.8, 1.0)
+    },
+    purple: {
+        ambient: vec4(0.2, 0.0, 0.3, 1.0),
+        diffuse: vec4(0.5, 0.0, 1.0, 1.0),
+        specular: vec4(0.8, 0.5, 1.0, 1.0)
+    },
+    gold: {
+        ambient: vec4(1.0, 0.0, 1.0, 1.0),
+        diffuse: vec4(1.0, 0.8, 0.0, 1.0),
+        specular: vec4(1.0, 0.8, 0.0, 1.0)
+    }
+};
+
+function setMaterialColor(colorName) {
+    const color = materialColors[colorName];
+    if (!color) return;
+
+    materialAmbient = color.ambient;
+    materialDiffuse = color.diffuse;
+    materialSpecular = color.specular;
+
+    let ambientProduct = mult(lightAmbient, materialAmbient);
+    let diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    let specularProduct = mult(lightSpecular, materialSpecular);
+
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
+}
+
 window.onload = function init()
 {
     let canvas = document.getElementById( "glCanvas" );
