@@ -1,9 +1,55 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Computer Graphics Assignment 3</title>
+        <style>
+            .container {
+                display: flex;
+                justify-content: space-between;
+                padding: 20px;
+                gap: 20px;
+            }
+            .model-view {
+                flex: 1;
+                min-width: 500px;
+            }
+            .controls {
+                flex: 1;
+                padding: 20px;
+                background-color: #f5f5f5;
+                border-radius: 8px;
+                max-width: 400px;
+            }
+            .control-group {
+                margin-bottom: 20px;
+                padding: 15px;
+                background-color: white;
+                border-radius: 5px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .control-group h3 {
+                margin-top: 0;
+                color: #333;
+            }
+            button, input[type="button"], select {
+                margin: 5px;
+                padding: 8px 15px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: white;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+            button:hover, input[type="button"]:hover {
+                background-color: #e9e9e9;
+            }
+            button.active, input[type="button"].active {
+                background-color: #4CAF50;
+                color: white;
+            }
+        </style>
         <script id="vertex-shader" type="x-shader/x-vertex">
             attribute vec4 vPosition;
             attribute vec3 vNormal;
@@ -58,38 +104,45 @@
         <script src="script.js"></script>
     </head>
     <body>
-        <div>
-            <B>Background Color:</B> 
-            <input id="Background" type="button" value="Black" onclick="
-            if (document.querySelector( '#Background' ).value == 'Black') {
-                document.querySelector( '#Background' ).value = 'White';
-            } else {
-                document.querySelector( '#Background' ).value = 'Black';
-            }
-            ">
-            <label for="materialColor"><B>Material Color: </B></label>
-            <select id="materialColor" onchange="setMaterialColor(this.value)">
-                <option value="red">Red</option>
-                <option value="green">Green</option>
-                <option value="blue">Blue</option>
-                <option value="yellow">Yellow</option>
-                <option value="purple">Purple</option>
-                <option value="gold">Gold</option>
-            </select>
-        </div>
-        <canvas id="glCanvas" width="500" height="500"></canvas>
-        <div>
-            <h3>Camera Location</h3>
-            <input id="FrontButton" type="button" value="Front View" onclick="setCameraView('front')">
-            <input id="LeftSideButton" type="button" value="Left Side View" onclick="setCameraView('leftside')">
-            <input id="RightSideButton" type="button" value="Right Side View" onclick="setCameraView('rightside')">
-            <input id="TopButton" type="button" value="Top View" onclick="setCameraView('top')">
-            <input id="BackButton" type="button" value="Back View" onclick="setCameraView('back')">  
-        </div>
-        <div>
-            <h3>Light Type</h3>
-            <input id="PointLight" type="button" value="Point Light" onclick="setLight('point')">
-            <input id="DirectionalLight" type="button" value="Directional Light" onclick="setLight('directional')">
+        <div class="container">
+            <div class="model-view">
+                <canvas id="glCanvas" width="500" height="500"></canvas>
+            </div>
+            <div class="controls">
+                <div class="control-group">
+                    <h3>Background Color</h3>
+                    <input id="Background" type="button" value="Black" onclick="
+                    if (document.querySelector('#Background').value == 'Black') {
+                        document.querySelector('#Background').value = 'White';
+                    } else {
+                        document.querySelector('#Background').value = 'Black';
+                    }">
+                </div>
+                <div class="control-group">
+                    <h3>Material Color</h3>
+                    <select id="materialColor" onchange="setMaterialColor(this.value)" aria-label="재질 색상 선택" title="재질 색상 선택">
+                        <option value="red">빨강</option>
+                        <option value="green">초록</option>
+                        <option value="blue">파랑</option>
+                        <option value="yellow">노랑</option>
+                        <option value="purple">보라</option>
+                        <option value="gold">Gold</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <h3>Camera Location</h3>
+                    <input id="FrontButton" type="button" value="Front View" onclick="setCameraView('front')">
+                    <input id="LeftSideButton" type="button" value="Left Side View" onclick="setCameraView('leftside')">
+                    <input id="RightSideButton" type="button" value="Right Side View" onclick="setCameraView('rightside')">
+                    <input id="TopButton" type="button" value="Top View" onclick="setCameraView('top')">
+                    <input id="BackButton" type="button" value="Back View" onclick="setCameraView('back')">
+                </div>
+                <div class="control-group">
+                    <h3>Light Type</h3>
+                    <input id="PointLight" type="button" value="Point Light" onclick="setLight('point')">
+                    <input id="DirectionalLight" type="button" value="Directional Light" onclick="setLight('directional')">
+                </div>
+            </div>
         </div>
     </body>
 </html>
