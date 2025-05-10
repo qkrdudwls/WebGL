@@ -90,23 +90,6 @@ let materialColors = {
     }
 };
 
-function setMaterialColor(colorName) {
-    const color = materialColors[colorName];
-    if (!color) return;
-
-    materialAmbient = color.ambient;
-    materialDiffuse = color.diffuse;
-    materialSpecular = color.specular;
-
-    let ambientProduct = mult(lightAmbient, materialAmbient);
-    let diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    let specularProduct = mult(lightSpecular, materialSpecular);
-
-    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
-    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
-    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
-}
-
 window.onload = function init()
 {
     let canvas = document.getElementById( "glCanvas" );
@@ -396,6 +379,23 @@ function animateCamera(targetEye, targetUp, duration = 1000) {
     }
 
     requestAnimationFrame(update);
+}
+
+function setMaterialColor(colorName) {
+    const color = materialColors[colorName];
+    if (!color) return;
+
+    materialAmbient = color.ambient;
+    materialDiffuse = color.diffuse;
+    materialSpecular = color.specular;
+
+    let ambientProduct = mult(lightAmbient, materialAmbient);
+    let diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    let specularProduct = mult(lightSpecular, materialSpecular);
+
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
 }
 
 function setBackground(color) {
