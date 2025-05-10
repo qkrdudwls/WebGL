@@ -261,6 +261,7 @@ window.onload = function init()
 
     gl.uniformMatrix3fv(gl.getUniformLocation(program, "normalMatrix"), false, flatten(normalMatrix));
 
+    initLightControls();
     initOrbitControl(canvas);
 
     render();
@@ -462,7 +463,6 @@ function updateCamera() {
 function setLight(light) {
     document.getElementById("PointLight").classList.remove("active");
     document.getElementById("DirectionalLight").classList.remove("active");
-
     if (light === 'point') {
         lightPosition = vec4(1.0, 1.0, 1.0, 1.0);
         document.getElementById("PointLight").classList.add("active");
@@ -474,31 +474,79 @@ function setLight(light) {
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
 }
 
+function initLightControls() {
+    const sliders = ['X', 'Y', 'Z'];
+    sliders.forEach(axis => {
+        const slider = document.getElementById(`light${axis}`);
+        const valueDisplay = document.getElementById(`light${axis}Value`);
+        
+        slider.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            valueDisplay.textContent = value.toFixed(1);
+            lightPosition[axis === 'X' ? 0 : axis === 'Y' ? 1 : 2] = value;
+            gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+        });
+    });
+}
+
+function resetLightPosition() {
+    const defaultPosition = [1.0, 1.0, 1.0];
+    const sliders = ['X', 'Y', 'Z'];
+    
+    sliders.forEach((axis, index) => {
+        const slider = document.getElementById(`light${axis}`);
+        const valueDisplay = document.getElementById(`light${axis}Value`);
+        
+        slider.value = defaultPosition[index];
+        valueDisplay.textContent = defaultPosition[index].toFixed(1);
+        lightPosition[index] = defaultPosition[index];
+    });
+    
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+}
+
 document.addEventListener("keydown", function (e) {
     const step = 0.1;
+    let updated = false;
 
     switch (e.key) {
         case "w": 
-            lightPosition[1] += step; 
+            lightPosition[1] += step;
+            updated = true;
             break;
         case "s": 
-            lightPosition[1] -= step; 
+            lightPosition[1] -= step;
+            updated = true;
             break;
         case "a": 
-            lightPosition[0] -= step; 
+            lightPosition[0] -= step;
+            updated = true;
             break;
         case "d": 
-            lightPosition[0] += step; 
+            lightPosition[0] += step;
+            updated = true;
             break;
         case "q": 
-            lightPosition[2] -= step; 
+            lightPosition[2] -= step;
+            updated = true;
             break;
         case "e": 
-            lightPosition[2] += step; 
+            lightPosition[2] += step;
+            updated = true;
             break;
     }
 
-    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+    if (updated) {
+        document.getElementById('lightX').value = lightPosition[0];
+        document.getElementById('lightY').value = lightPosition[1];
+        document.getElementById('lightZ').value = lightPosition[2];
+
+        document.getElementById('lightXValue').textContent = lightPosition[0].toFixed(1);
+        document.getElementById('lightYValue').textContent = lightPosition[1].toFixed(1);
+        document.getElementById('lightZValue').textContent = lightPosition[2].toFixed(1);
+
+        gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+    }
 });
 
 function initOrbitControl(canvas) {
