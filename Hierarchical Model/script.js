@@ -77,40 +77,6 @@ const bones = {
     rightFoot: { vertices: createCubeVertices(0.1, -0.75, 0.0, 0.1, 0.1, 0.1) }
 };
 
-function animateCamera(targetEye, targetUp, duration = 1000) {
-    const startEye = vec3(eye[0], eye[1], eye[2]);
-    const startUp = vec3(up[0], up[1], up[2]);
-    const startTime = Date.now();
-
-    function update() {
-        const currentTime = Date.now();
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        const easeProgress = 1 - Math.pow(1 - progress, 3);
-        
-        eye = vec3(
-            startEye[0] + (targetEye[0] - startEye[0]) * easeProgress,
-            startEye[1] + (targetEye[1] - startEye[1]) * easeProgress,
-            startEye[2] + (targetEye[2] - startEye[2]) * easeProgress
-        );
-        
-        up = normalize(vec3(
-            startUp[0] + (targetUp[0] - startUp[0]) * easeProgress,
-            startUp[1] + (targetUp[1] - startUp[1]) * easeProgress,
-            startUp[2] + (targetUp[2] - startUp[2]) * easeProgress
-        ));
-
-        updateCamera();
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-
-    requestAnimationFrame(update);
-}
-
 function updateCamera() {
     modelViewMatrix = lookAt(eye, at, up);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
@@ -172,17 +138,6 @@ function initOrbitControl(canvas) {
         
         updateCamera();
     });
-}
-
-function updateEyePosition() {
-    const radAz = toRadians(azimuth);
-    const radEl = toRadians(elevation);
-
-    eye[0] = radius * Math.cos(radEl) * Math.sin(radAz);
-    eye[1] = radius * Math.sin(radEl);
-    eye[2] = radius * Math.cos(radEl) * Math.cos(radAz);
-
-    updateCamera();
 }
 
 window.onload = function init() {
