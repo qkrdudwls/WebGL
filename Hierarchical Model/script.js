@@ -226,6 +226,7 @@ function updateEyePosition() {
 }
 
 window.onload = function init() {
+    loadBVHFile("Idle.bvh");
     const canvas = document.getElementById("glCanvas");
     gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) { alert("WebGL not available"); return; }
@@ -345,10 +346,5 @@ function loadBVHFile(url) {
             bvhParser = new BVHParser(text);
         });
 }
-
-window.onload = function() {
-    init();
-    loadBVHFile("Idle.bvh");
-};
 
 window.setCameraView = setCameraView;
