@@ -55,66 +55,26 @@ function getCubeIndices(offset = 0) {
 }
 
 const bones = {
-    head: { 
-        vertices: createCubeVertices(0.0, 0.65, 0.0, 0.2, 0.2, 0.2) 
-    },
-    neck: { 
-        vertices: createCubeVertices(0.0, 0.525, 0.0, 0.05, 0.05, 0.05) 
-    },
-    spine1: { 
-        vertices: createCubeVertices(0.0, 0.45, 0.0, 0.1, 0.1, 0.1) 
-    },
-    spine: { 
-        vertices: createCubeVertices(0.0, 0.3, 0.0, 0.1, 0.2, 0.1) 
-    },
-    spine2: { 
-        vertices: createCubeVertices(0.0, 0.1, 0.0, 0.1, 0.2, 0.1) 
-    },
-    hips: { 
-        vertices: createCubeVertices(0.0, -0.05, 0.0, 0.1, 0.1, 0.1) 
-    },
-    leftShoulder: { 
-        vertices: createCubeVertices(-0.175, 0.45, 0.0, 0.35, 0.1, 0.1) 
-    },
-    rightShoulder: { 
-        vertices: createCubeVertices(0.175, 0.45, 0.0, 0.35, 0.1, 0.1) 
-    },
-    leftArm: { 
-        vertices: createCubeVertices(-0.3, 0.35, 0.0, 0.1, 0.3, 0.1) 
-    },
-    leftForeArm: { 
-        vertices: createCubeVertices(-0.3, 0.05, 0.0, 0.1, 0.3, 0.1) 
-    },
-    leftHand: { 
-        vertices: createCubeVertices(-0.3, -0.15, 0.0, 0.1, 0.1, 0.1) 
-    },
-    rightArm: { 
-        vertices: createCubeVertices(0.3, 0.35, 0.0, 0.1, 0.3, 0.1) 
-    },
-    rightForeArm: { 
-        vertices: createCubeVertices(0.3, 0.05, 0.0, 0.1, 0.3, 0.1) 
-    },
-    rightHand: { 
-        vertices: createCubeVertices(0.3, -0.15, 0.0, 0.1, 0.1, 0.1) 
-    },
-    leftUpLeg: { 
-        vertices: createCubeVertices(-0.1, -0.2, 0.0, 0.1, 0.4, 0.1) 
-    },
-    leftLeg: { 
-        vertices: createCubeVertices(-0.1, -0.55, 0.0, 0.1, 0.3, 0.1) 
-    },
-    leftFoot: { 
-        vertices: createCubeVertices(-0.1, -0.75, 0.0, 0.1, 0.1, 0.1) 
-    },
-    rightUpLeg: { 
-        vertices: createCubeVertices(0.1, -0.2, 0.0, 0.1, 0.4, 0.1) 
-    },
-    rightLeg: { 
-        vertices: createCubeVertices(0.1, -0.55, 0.0, 0.1, 0.3, 0.1) 
-    },
-    rightFoot: { 
-        vertices: createCubeVertices(0.1, -0.75, 0.0, 0.1, 0.1, 0.1) 
-    }
+    head: { vertices: createCubeVertices(0.0, 0.65, 0.0, 0.2, 0.2, 0.2) },
+    neck: { vertices: createCubeVertices(0.0, 0.525, 0.0, 0.05, 0.05, 0.05) },
+    spine1: { vertices: createCubeVertices(0.0, 0.45, 0.0, 0.1, 0.1, 0.1) },
+    spine: { vertices: createCubeVertices(0.0, 0.3, 0.0, 0.1, 0.2, 0.1) },
+    spine2: { vertices: createCubeVertices(0.0, 0.1, 0.0, 0.1, 0.2, 0.1) },
+    hips: { vertices: createCubeVertices(0.0, -0.05, 0.0, 0.1, 0.1, 0.1) },
+    leftShoulder: { vertices: createCubeVertices(-0.175, 0.45, 0.0, 0.35, 0.1, 0.1) },
+    rightShoulder: { vertices: createCubeVertices(0.175, 0.45, 0.0, 0.35, 0.1, 0.1) },
+    leftArm: { vertices: createCubeVertices(-0.3, 0.35, 0.0, 0.1, 0.3, 0.1) },
+    leftForeArm: { vertices: createCubeVertices(-0.3, 0.05, 0.0, 0.1, 0.3, 0.1) },
+    leftHand: { vertices: createCubeVertices(-0.3, -0.15, 0.0, 0.1, 0.1, 0.1) },
+    rightArm: { vertices: createCubeVertices(0.3, 0.35, 0.0, 0.1, 0.3, 0.1) },
+    rightForeArm: { vertices: createCubeVertices(0.3, 0.05, 0.0, 0.1, 0.3, 0.1) },
+    rightHand: { vertices: createCubeVertices(0.3, -0.15, 0.0, 0.1, 0.1, 0.1) },
+    leftUpLeg: { vertices: createCubeVertices(-0.1, -0.2, 0.0, 0.1, 0.4, 0.1) },
+    leftLeg: { vertices: createCubeVertices(-0.1, -0.55, 0.0, 0.1, 0.3, 0.1) },
+    leftFoot: { vertices: createCubeVertices(-0.1, -0.75, 0.0, 0.1, 0.1, 0.1) },
+    rightUpLeg: { vertices: createCubeVertices(0.1, -0.2, 0.0, 0.1, 0.4, 0.1) },
+    rightLeg: { vertices: createCubeVertices(0.1, -0.55, 0.0, 0.1, 0.3, 0.1) },
+    rightFoot: { vertices: createCubeVertices(0.1, -0.75, 0.0, 0.1, 0.1, 0.1) }
 };
 
 function animateCamera(targetEye, targetUp, duration = 1000) {
@@ -226,7 +186,7 @@ function updateEyePosition() {
 }
 
 window.onload = function init() {
-    loadBVHFile("Idle.bvh");
+    loadBVHFile("./BVH/Idle.bvh");
     const canvas = document.getElementById("glCanvas");
     gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) { alert("WebGL not available"); return; }
