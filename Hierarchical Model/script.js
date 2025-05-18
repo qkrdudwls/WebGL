@@ -1,6 +1,7 @@
 "use strict";
 
 let gl;
+let bvhParser = null;
 let modelViewMatrix, projectionMatrix;
 let modelViewMatrixLoc, projectionMatrixLoc;
 
@@ -116,76 +117,6 @@ const bones = {
     }
 };
 
-window.onload = function init() {
-    const canvas = document.getElementById("glCanvas");
-    gl = WebGLUtils.setupWebGL(canvas);
-    if (!gl) { alert("WebGL not available"); return; }
-
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
-
-    const program = initShaders(gl, "vertex-shader", "fragment-shader");
-    gl.useProgram(program);
-
-    let allVertices = [];
-    let allIndices = [];
-    let vOffset = 0, iOffset = 0;
-    const bonesOrder = [];
-
-    for (const name in bones) {
-        const verts = bones[name].vertices;
-        const inds = getCubeIndices(vOffset);
-
-        bonesOrder.push({ indexStart: iOffset, indexCount: inds.length });
-
-        allVertices.push(...verts);
-        allIndices.push(...inds);
-        vOffset += verts.length;
-        iOffset += inds.length;
-    }
-    window.bonesOrder = bonesOrder;
-    indexCount = allIndices.length;
-
-    const vBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(allVertices), gl.STATIC_DRAW);
-    const vPos = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPos, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPos);
-
-    const iBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(allIndices), gl.STATIC_DRAW);
-
-    modelViewMatrixLoc  = gl.getUniformLocation(program, "modelViewMatrix");
-    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
-
-    modelViewMatrix = lookAt(eye, at, up);
-    projectionMatrix = perspective(70.0, canvas.width / canvas.height, 0.1, 10.0);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-
-    initOrbitControl(canvas);
-
-    render();
-};
-
-function render() {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    const BYTES_PER_INDEX = Uint16Array.BYTES_PER_ELEMENT;
-
-    modelViewMatrix = lookAt(eye, at, up);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-
-    for (const bone of window.bonesOrder) {
-        const offset = bone.indexStart * BYTES_PER_INDEX;
-        gl.drawElements(gl.TRIANGLES, bone.indexCount, gl.UNSIGNED_SHORT, offset);
-    }
-
-    requestAnimationFrame(render);
-}
-
 function animateCamera(targetEye, targetUp, duration = 1000) {
     const startEye = vec3(eye[0], eye[1], eye[2]);
     const startUp = vec3(up[0], up[1], up[2]);
@@ -293,5 +224,131 @@ function updateEyePosition() {
 
     updateCamera();
 }
+
+window.onload = function init() {
+    const canvas = document.getElementById("glCanvas");
+    gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl) { alert("WebGL not available"); return; }
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.enable(gl.DEPTH_TEST);
+
+    const program = initShaders(gl, "vertex-shader", "fragment-shader");
+    gl.useProgram(program);
+
+    let allVertices = [];
+    let allIndices = [];
+    let vOffset = 0, iOffset = 0;
+    const bonesOrder = [];
+
+    for (const name in bones) {
+        const verts = bones[name].vertices;
+        const inds = getCubeIndices(vOffset);
+
+        bonesOrder.push({ indexStart: iOffset, indexCount: inds.length });
+
+        allVertices.push(...verts);
+        allIndices.push(...inds);
+        vOffset += verts.length;
+        iOffset += inds.length;
+    }
+    window.bonesOrder = bonesOrder;
+    indexCount = allIndices.length;
+
+    const vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(allVertices), gl.STATIC_DRAW);
+    const vPos = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPos, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPos);
+
+    const iBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(allIndices), gl.STATIC_DRAW);
+
+    modelViewMatrixLoc  = gl.getUniformLocation(program, "modelViewMatrix");
+    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+
+    modelViewMatrix = lookAt(eye, at, up);
+    projectionMatrix = perspective(70.0, canvas.width / canvas.height, 0.1, 10.0);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+
+    initOrbitControl(canvas);
+
+    render();
+};
+
+let bvhToJsBoneMap = {
+    "mixamorig:Hips": "hips",
+    "mixamorig:Spine": "spine2",
+    "mixamorig:Spine1": "spine1",
+    "mixamorig:Spine2": "spine",
+    "mixamorig:Neck": "neck",
+    "mixamorig:Head": "head",
+    "mixamorig:RightShoulder": "rightShoulder",
+    "mixamorig:RightArm": "rightArm",
+    "mixamorig:RightForeArm": "rightForeArm",
+    "mixamorig:RightHand": "rightHand",
+    "mixamorig:LeftShoulder": "leftShoulder",
+    "mixamorig:LeftArm": "leftArm",
+    "mixamorig:LeftForeArm": "leftForeArm",
+    "mixamorig:LeftHand": "leftHand",
+    "mixamorig:RightUpLeg": "rightUpLeg",
+    "mixamorig:RightLeg": "rightLeg",
+    "mixamorig:RightFoot": "rightFoot",
+    "mixamorig:LeftUpLeg": "leftUpLeg",
+    "mixamorig:LeftLeg": "leftLeg",
+    "mixamorig:LeftFoot": "leftFoot"
+};
+
+function applyBVHAnimation(frameIndex) {
+    for (const [bvhName, jsName] of Object.entries(bvhToJsBoneMap)) {
+        const pose = bvhParser.getJointPose(frameIndex, bvhName);
+        if (!pose || !bones[jsName]) continue;
+
+        const rx = toRadians(pose.Xrotation || 0);
+        const ry = toRadians(pose.Yrotation || 0);
+        const rz = toRadians(pose.Zrotation || 0);
+
+        const rotationMatrix =
+            mult(rotateZ(rz),
+            mult(rotateY(ry),
+                 rotateX(rx)));
+
+        bones[jsName].transformedVertices = bones[jsName].vertices.map(v => mult(rotationMatrix, v));
+    }
+}
+
+function render(frameIndex = 0) {
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    modelViewMatrix = lookAt(eye, at, up);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+
+    if (bvhParser) {
+        applyBVHAnimation(frameIndex % bvhParser.frames.length);
+    }
+
+    for (const bone of window.bonesOrder) {
+        const offset = bone.indexStart * Uint16Array.BYTES_PER_ELEMENT;
+        gl.drawElements(gl.TRIANGLES, bone.indexCount, gl.UNSIGNED_SHORT, offset);
+    }
+
+    requestAnimationFrame(() => render(frameIndex + 1));
+}
+
+function loadBVHFile(url) {
+    fetch(url)
+        .then(response => response.text())
+        .then(text => {
+            bvhParser = new BVHParser(text);
+        });
+}
+
+window.onload = function() {
+    init();
+    loadBVHFile("Idle.bvh");
+};
 
 window.setCameraView = setCameraView;
