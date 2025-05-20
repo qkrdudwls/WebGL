@@ -1,47 +1,74 @@
 class BVHParser {
-    constructor(bvhText) {
-        const [hierarchyPart, motionPart] = bvhText.split("MOTION");
-        this.frames = [];
-        this.jointOrder = this.extractJointOrder(hierarchyPart);
-        this.channelCount = this.jointOrder.reduce((acc, j) => acc + j.channels.length, 0);
-
-        this.parseMotionData(motionPart.trim());
+    constructor() {
+        this.hierarchy = null;
+        this.motion = [];
     }
 
-    extractJointOrder(hierarchyText) {
-        const jointOrder = [];
-        const jointRegex = /(ROOT|JOINT)\s+([^\s{]+)[\s\S]*?CHANNELS\s+(\d+)\s+([^\n]+)/g;
-        let match;
-        while ((match = jointRegex.exec(hierarchyText)) !== null) {
-            const name = match[2];
-            const channels = match[4].trim().split(/\s+/);
-            jointOrder.push({ name, channels });
+    parse(text) {
+        const lines = text.split(/\r?\n/);
+        let index = 0;
+
+        if (lines[index].trim() !== "HIERARCHY") {
+        throw new Error("Invalid BVH format: Missing HIERARCHY section.");
         }
-        return jointOrder;
+        index++;
+
+        this.hierarchy = this.parseHierarchy(lines, index);
+
+        while (!lines[index].startsWith("MOTION")) index++;
+        index++;
+        this.motion = this.parseMotion(lines, index);
+        
+        return { hierarchy: this.hierarchy, motion: this.motion };
     }
 
-    parseMotionData(motionText) {
-        const lines = motionText.split("\n").filter(line => line.trim().length > 0);
-        const frameDataLines = lines.slice(2); // Skip "Frames:" and "Frame Time:"
-        this.frames = frameDataLines.map(line => line.trim().split(/\s+/).map(Number));
+    parseHierarchy(lines, index) {
+        let stack = [];
+        let root = null;
+
+        while (index < lines.length) {
+        const line = lines[index].trim();
+        index++;
+
+        if (line.startsWith("ROOT") || line.startsWith("JOINT")) {
+            const parts = line.split(" ");
+            const node = { name: parts[1], offset: null, channels: [], children: [] };
+
+            stack.push(node);
+            if (!root) root = node;
+        } else if (line.startsWith("OFFSET")) {
+            const parts = line.split(" ");
+            stack[stack.length - 1].offset = [parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])];
+        } else if (line.startsWith("CHANNELS")) {
+            const parts = line.split(" ");
+            stack[stack.length - 1].channels = parts.slice(2);
+        } else if (line.startsWith("End Site")) {
+            const node = { name: "End Site", offset: null, children: [] };
+            stack[stack.length - 1].children.push(node);
+        } else if (line === "}") {
+            const node = stack.pop();
+            if (stack.length > 0) stack[stack.length - 1].children.push(node);
+        }
+        }
+        return root;
     }
 
-    getJointPose(frameIndex, jointName) {
-        const jointIndex = this.jointOrder.findIndex(j => j.name === jointName);
-        if (jointIndex === -1) return null;
+    parseMotion(lines, index) {
+        let motionData = [];
+        
+        const frameCount = parseInt(lines[index].split(":")[1].trim());
+        index++;
+        const frameTime = parseFloat(lines[index].split(":")[1].trim());
+        index++;
 
-        let offset = 0;
-        for (let i = 0; i < jointIndex; i++) {
-            offset += this.jointOrder[i].channels.length;
+        for (let i = 0; i < frameCount; i++) {
+            const values = lines[index].trim().split(" ").map(parseFloat);
+            motionData.push(values);
+            index++;
         }
 
-        const channels = this.jointOrder[jointIndex].channels;
-        const frame = this.frames[frameIndex];
-
-        const pose = {};
-        for (let i = 0; i < channels.length; i++) {
-            pose[channels[i]] = frame[offset + i];
-        }
-        return pose;
+        return { frameCount, frameTime, frames: motionData };
     }
 }
+
+export default BVHParser;
