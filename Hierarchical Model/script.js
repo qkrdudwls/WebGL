@@ -55,93 +55,69 @@ function getCubeIndices(offset = 0) {
 }
 
 const bones = {
-    head: { vertices: createCubeVertices(0.0, 0.65, 0.0, 0.2, 0.2, 0.2) },
-    neck: { vertices: createCubeVertices(0.0, 0.525, 0.0, 0.05, 0.05, 0.05) },
-    spine1: { vertices: createCubeVertices(0.0, 0.45, 0.0, 0.1, 0.1, 0.1) },
-    spine: { vertices: createCubeVertices(0.0, 0.3, 0.0, 0.1, 0.2, 0.1) },
-    spine2: { vertices: createCubeVertices(0.0, 0.1, 0.0, 0.1, 0.2, 0.1) },
-    hips: { vertices: createCubeVertices(0.0, -0.05, 0.0, 0.1, 0.1, 0.1) },
-    leftShoulder: { vertices: createCubeVertices(-0.175, 0.45, 0.0, 0.35, 0.1, 0.1) },
-    rightShoulder: { vertices: createCubeVertices(0.175, 0.45, 0.0, 0.35, 0.1, 0.1) },
-    leftArm: { vertices: createCubeVertices(-0.3, 0.35, 0.0, 0.1, 0.3, 0.1) },
-    leftForeArm: { vertices: createCubeVertices(-0.3, 0.05, 0.0, 0.1, 0.3, 0.1) },
-    leftHand: { vertices: createCubeVertices(-0.3, -0.15, 0.0, 0.1, 0.1, 0.1) },
-    rightArm: { vertices: createCubeVertices(0.3, 0.35, 0.0, 0.1, 0.3, 0.1) },
-    rightForeArm: { vertices: createCubeVertices(0.3, 0.05, 0.0, 0.1, 0.3, 0.1) },
-    rightHand: { vertices: createCubeVertices(0.3, -0.15, 0.0, 0.1, 0.1, 0.1) },
-    leftUpLeg: { vertices: createCubeVertices(-0.1, -0.2, 0.0, 0.1, 0.4, 0.1) },
-    leftLeg: { vertices: createCubeVertices(-0.1, -0.55, 0.0, 0.1, 0.3, 0.1) },
-    leftFoot: { vertices: createCubeVertices(-0.1, -0.75, 0.0, 0.1, 0.1, 0.1) },
-    rightUpLeg: { vertices: createCubeVertices(0.1, -0.2, 0.0, 0.1, 0.4, 0.1) },
-    rightLeg: { vertices: createCubeVertices(0.1, -0.55, 0.0, 0.1, 0.3, 0.1) },
-    rightFoot: { vertices: createCubeVertices(0.1, -0.75, 0.0, 0.1, 0.1, 0.1) }
+    head: { 
+        vertices: createCubeVertices(0.0, 0.65, 0.0, 0.2, 0.2, 0.2) 
+    },
+    neck: { 
+        vertices: createCubeVertices(0.0, 0.525, 0.0, 0.05, 0.05, 0.05) 
+    },
+    spine1: { 
+        vertices: createCubeVertices(0.0, 0.45, 0.0, 0.1, 0.1, 0.1) 
+    },
+    spine: { 
+        vertices: createCubeVertices(0.0, 0.3, 0.0, 0.1, 0.2, 0.1) 
+    },
+    spine2: { 
+        vertices: createCubeVertices(0.0, 0.1, 0.0, 0.1, 0.2, 0.1) 
+    },
+    hips: { 
+        vertices: createCubeVertices(0.0, -0.05, 0.0, 0.1, 0.1, 0.1) 
+    },
+    leftShoulder: { 
+        vertices: createCubeVertices(-0.175, 0.45, 0.0, 0.35, 0.1, 0.1) 
+    },
+    rightShoulder: { 
+        vertices: createCubeVertices(0.175, 0.45, 0.0, 0.35, 0.1, 0.1) 
+    },
+    leftArm: { 
+        vertices: createCubeVertices(-0.3, 0.35, 0.0, 0.1, 0.3, 0.1) 
+    },
+    leftForeArm: { 
+        vertices: createCubeVertices(-0.3, 0.05, 0.0, 0.1, 0.3, 0.1) 
+    },
+    leftHand: { 
+        vertices: createCubeVertices(-0.3, -0.15, 0.0, 0.1, 0.1, 0.1) 
+    },
+    rightArm: { 
+        vertices: createCubeVertices(0.3, 0.35, 0.0, 0.1, 0.3, 0.1) 
+    },
+    rightForeArm: { 
+        vertices: createCubeVertices(0.3, 0.05, 0.0, 0.1, 0.3, 0.1) 
+    },
+    rightHand: { 
+        vertices: createCubeVertices(0.3, -0.15, 0.0, 0.1, 0.1, 0.1) 
+    },
+    leftUpLeg: { 
+        vertices: createCubeVertices(-0.1, -0.2, 0.0, 0.1, 0.4, 0.1) 
+    },
+    leftLeg: { 
+        vertices: createCubeVertices(-0.1, -0.55, 0.0, 0.1, 0.3, 0.1) 
+    },
+    leftFoot: { 
+        vertices: createCubeVertices(-0.1, -0.75, 0.0, 0.1, 0.1, 0.1) 
+    },
+    rightUpLeg: { 
+        vertices: createCubeVertices(0.1, -0.2, 0.0, 0.1, 0.4, 0.1) 
+    },
+    rightLeg: { 
+        vertices: createCubeVertices(0.1, -0.55, 0.0, 0.1, 0.3, 0.1) 
+    },
+    rightFoot: { 
+        vertices: createCubeVertices(0.1, -0.75, 0.0, 0.1, 0.1, 0.1) 
+    }
 };
 
-function updateCamera() {
-    modelViewMatrix = lookAt(eye, at, up);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-}
-
-function initOrbitControl(canvas) {
-    let rotationMatrix = mat4();
-    let lastMouseX = 0;
-    let lastMouseY = 0;
-    let mouseDown = false;
-
-    canvas.addEventListener("mousedown", function(event) {
-        mouseDown = true;
-        lastMouseX = event.clientX;
-        lastMouseY = event.clientY;
-    });
-
-    canvas.addEventListener("mouseup", function() {
-        mouseDown = false;
-    });
-
-    canvas.addEventListener("mousemove", function(event) {
-        if (!mouseDown) {
-            return;
-        }
-
-        let newX = event.clientX;
-        let newY = event.clientY;
-
-        let deltaX = newX - lastMouseX;
-        let deltaY = newY - lastMouseY;
-
-        let rotation = mat4();
-        rotation = mult(rotation, rotate(deltaY / 5, vec3(1, 0, 0)));
-        rotation = mult(rotation, rotate(deltaX / 5, vec3(0, 1, 0)));
-
-        rotationMatrix = mult(rotation, rotationMatrix);
-        
-        let rotatedEye = mult(rotationMatrix, vec4(0, 0, radius, 1));
-        eye = vec3(rotatedEye[0], rotatedEye[1], rotatedEye[2]);
-        
-        let rotatedUp = mult(rotationMatrix, vec4(0, 1, 0, 0));
-        up = normalize(vec3(rotatedUp[0], rotatedUp[1], rotatedUp[2]));
-
-        updateCamera();
-
-        lastMouseX = newX;
-        lastMouseY = newY;
-    });
-
-    canvas.addEventListener("wheel", function(event) {
-        event.preventDefault();
-     
-        let zoomSensitivity = 0.001;
-        radius = Math.max(1.0, Math.min(5.0, radius + event.deltaY * zoomSensitivity));
-        
-        let direction = normalize(subtract(eye, at));
-        eye = add(at, scale(radius, direction));
-        
-        updateCamera();
-    });
-}
-
 window.onload = function init() {
-    loadBVHFile("./BVH/Idle.bvh");
     const canvas = document.getElementById("glCanvas");
     gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) { alert("WebGL not available"); return; }
@@ -196,70 +172,125 @@ window.onload = function init() {
     render();
 };
 
-let bvhToJsBoneMap = {
-    "mixamorig:Hips": "hips",
-    "mixamorig:Spine": "spine2",
-    "mixamorig:Spine1": "spine1",
-    "mixamorig:Spine2": "spine",
-    "mixamorig:Neck": "neck",
-    "mixamorig:Head": "head",
-    "mixamorig:RightShoulder": "rightShoulder",
-    "mixamorig:RightArm": "rightArm",
-    "mixamorig:RightForeArm": "rightForeArm",
-    "mixamorig:RightHand": "rightHand",
-    "mixamorig:LeftShoulder": "leftShoulder",
-    "mixamorig:LeftArm": "leftArm",
-    "mixamorig:LeftForeArm": "leftForeArm",
-    "mixamorig:LeftHand": "leftHand",
-    "mixamorig:RightUpLeg": "rightUpLeg",
-    "mixamorig:RightLeg": "rightLeg",
-    "mixamorig:RightFoot": "rightFoot",
-    "mixamorig:LeftUpLeg": "leftUpLeg",
-    "mixamorig:LeftLeg": "leftLeg",
-    "mixamorig:LeftFoot": "leftFoot"
-};
-
-function applyBVHAnimation(frameIndex) {
-    for (const [bvhName, jsName] of Object.entries(bvhToJsBoneMap)) {
-        const pose = bvhParser.getJointPose(frameIndex, bvhName);
-        if (!pose || !bones[jsName]) continue;
-
-        const rx = toRadians(pose.Xrotation || 0);
-        const ry = toRadians(pose.Yrotation || 0);
-        const rz = toRadians(pose.Zrotation || 0);
-
-        const rotationMatrix =
-            mult(rotateZ(rz),
-            mult(rotateY(ry),
-                 rotateX(rx)));
-
-        bones[jsName].transformedVertices = bones[jsName].vertices.map(v => mult(rotationMatrix, v));
-    }
-}
-
-function render(frameIndex = 0) {
+function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    const BYTES_PER_INDEX = Uint16Array.BYTES_PER_ELEMENT;
+
     modelViewMatrix = lookAt(eye, at, up);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
-    if (bvhParser) {
-        applyBVHAnimation(frameIndex % bvhParser.frames.length);
-    }
-
     for (const bone of window.bonesOrder) {
-        const offset = bone.indexStart * Uint16Array.BYTES_PER_ELEMENT;
+        const offset = bone.indexStart * BYTES_PER_INDEX;
         gl.drawElements(gl.TRIANGLES, bone.indexCount, gl.UNSIGNED_SHORT, offset);
     }
 
-    requestAnimationFrame(() => render(frameIndex + 1));
+    requestAnimationFrame(render);
 }
 
-function loadBVHFile(url) {
-    fetch(url)
-        .then(response => response.text())
-        .then(text => {
-            bvhParser = new BVHParser(text);
-        });
+function animateCamera(targetEye, targetUp, duration = 1000) {
+    const startEye = vec3(eye[0], eye[1], eye[2]);
+    const startUp = vec3(up[0], up[1], up[2]);
+    const startTime = Date.now();
+
+    function update() {
+        const currentTime = Date.now();
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+        eye = vec3(
+            startEye[0] + (targetEye[0] - startEye[0]) * easeProgress,
+            startEye[1] + (targetEye[1] - startEye[1]) * easeProgress,
+            startEye[2] + (targetEye[2] - startEye[2]) * easeProgress
+        );
+
+        up = normalize(vec3(
+            startUp[0] + (targetUp[0] - startUp[0]) * easeProgress,
+            startUp[1] + (targetUp[1] - startUp[1]) * easeProgress,
+            startUp[2] + (targetUp[2] - startUp[2]) * easeProgress
+        ));
+
+        updateCamera();
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+
+    requestAnimationFrame(update);
 }
 
-window.setCameraView = setCameraView;
+function updateCamera() {
+    modelViewMatrix = lookAt(eye, at, up);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+}
+
+function initOrbitControl(canvas) {
+    let rotationMatrix = mat4();
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let mouseDown = false;
+
+    canvas.addEventListener("mousedown", function(event) {
+        mouseDown = true;
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+    });
+
+    canvas.addEventListener("mouseup", function() {
+        mouseDown = false;
+    });
+
+    canvas.addEventListener("mousemove", function(event) {
+        if (!mouseDown) {
+            return;
+        }
+
+        let newX = event.clientX;
+        let newY = event.clientY;
+
+        let deltaX = newX - lastMouseX;
+        let deltaY = newY - lastMouseY;
+
+        let rotation = mat4();
+        rotation = mult(rotation, rotate(deltaY / 5, vec3(1, 0, 0)));
+        rotation = mult(rotation, rotate(deltaX / 5, vec3(0, 1, 0)));
+
+        rotationMatrix = mult(rotation, rotationMatrix);
+
+        let rotatedEye = mult(rotationMatrix, vec4(0, 0, radius, 1));
+        eye = vec3(rotatedEye[0], rotatedEye[1], rotatedEye[2]);
+
+        let rotatedUp = mult(rotationMatrix, vec4(0, 1, 0, 0));
+        up = normalize(vec3(rotatedUp[0], rotatedUp[1], rotatedUp[2]));
+
+        updateCamera();
+
+        lastMouseX = newX;
+        lastMouseY = newY;
+    });
+
+    canvas.addEventListener("wheel", function(event) {
+        event.preventDefault();
+
+        let zoomSensitivity = 0.001;
+        radius = Math.max(1.0, Math.min(5.0, radius + event.deltaY * zoomSensitivity));
+
+        let direction = normalize(subtract(eye, at));
+        eye = add(at, scale(radius, direction));
+
+        updateCamera();
+    });
+}
+
+function updateEyePosition() {
+    const radAz = toRadians(azimuth);
+    const radEl = toRadians(elevation);
+
+    eye[0] = radius * Math.cos(radEl) * Math.sin(radAz);
+    eye[1] = radius * Math.sin(radEl);
+    eye[2] = radius * Math.cos(radEl) * Math.cos(radAz);
+
+    updateCamera();
+}
