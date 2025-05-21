@@ -1,296 +1,223 @@
 "use strict";
 
 let gl;
-let bvhParser = null;
+
 let modelViewMatrix, projectionMatrix;
-let modelViewMatrixLoc, projectionMatrixLoc;
+let stack = [];
 
-let eye = vec3(0.0, 0.0, 1.5);
-let at = vec3(0.0, 0.0, 0.0);
-let up = vec3(0.0, 1.0, 0.0);
+let uModelViewMatrix, uProjectionMatrix;
+let root;
 
-let dragging = false;
-let lastX = 0;
-let lastY = 0;
-let azimuth = 0;
-let elevation = 0;
-let radius = 1.5;
+let program;
+let sphereBuffer, lineBuffer;
 
-let indexCount = 0;
-
-const toRadians = deg => deg * Math.PI / 180;
-
-let cameras = {
-    front: vec3(0.0, 0.0, 1.5),
-    side: vec3(1.5, 0.0, 0.0),
-    top: vec3(0.0, 1.5, 0.0)
-}
-
-function createCubeVertices(x, y, z, width, height, depth) {
-    const w = width / 2;
-    const h = height / 2;
-    const d = depth / 2;
-    return [
-        vec4(x - w, y - h, z + d, 1.0), 
-        vec4(x + w, y - h, z + d, 1.0), 
-        vec4(x + w, y + h, z + d, 1.0), 
-        vec4(x - w, y + h, z + d, 1.0), 
-        vec4(x - w, y - h, z - d, 1.0), 
-        vec4(x + w, y - h, z - d, 1.0), 
-        vec4(x + w, y + h, z - d, 1.0), 
-        vec4(x - w, y + h, z - d, 1.0) 
-    ];
-}
-
-function getCubeIndices(offset = 0) {
-    const base = [
-        0,1,2, 0,2,3, 
-        4,5,6, 4,6,7,  
-        0,4,7, 0,7,3,  
-        1,5,6, 1,6,2,  
-        3,2,6, 3,6,7,  
-        0,1,5, 0,5,4   
-    ];
-    return base.map(i => i + offset);
-}
-
-const bones = {
-    head: { 
-        vertices: createCubeVertices(0.0, 0.65, 0.0, 0.2, 0.2, 0.2) 
-    },
-    neck: { 
-        vertices: createCubeVertices(0.0, 0.525, 0.0, 0.05, 0.05, 0.05) 
-    },
-    spine1: { 
-        vertices: createCubeVertices(0.0, 0.45, 0.0, 0.1, 0.1, 0.1) 
-    },
-    spine: { 
-        vertices: createCubeVertices(0.0, 0.3, 0.0, 0.1, 0.2, 0.1) 
-    },
-    spine2: { 
-        vertices: createCubeVertices(0.0, 0.1, 0.0, 0.1, 0.2, 0.1) 
-    },
-    hips: { 
-        vertices: createCubeVertices(0.0, -0.05, 0.0, 0.1, 0.1, 0.1) 
-    },
-    leftShoulder: { 
-        vertices: createCubeVertices(-0.175, 0.45, 0.0, 0.35, 0.1, 0.1) 
-    },
-    rightShoulder: { 
-        vertices: createCubeVertices(0.175, 0.45, 0.0, 0.35, 0.1, 0.1) 
-    },
-    leftArm: { 
-        vertices: createCubeVertices(-0.3, 0.35, 0.0, 0.1, 0.3, 0.1) 
-    },
-    leftForeArm: { 
-        vertices: createCubeVertices(-0.3, 0.05, 0.0, 0.1, 0.3, 0.1) 
-    },
-    leftHand: { 
-        vertices: createCubeVertices(-0.3, -0.15, 0.0, 0.1, 0.1, 0.1) 
-    },
-    rightArm: { 
-        vertices: createCubeVertices(0.3, 0.35, 0.0, 0.1, 0.3, 0.1) 
-    },
-    rightForeArm: { 
-        vertices: createCubeVertices(0.3, 0.05, 0.0, 0.1, 0.3, 0.1) 
-    },
-    rightHand: { 
-        vertices: createCubeVertices(0.3, -0.15, 0.0, 0.1, 0.1, 0.1) 
-    },
-    leftUpLeg: { 
-        vertices: createCubeVertices(-0.1, -0.2, 0.0, 0.1, 0.4, 0.1) 
-    },
-    leftLeg: { 
-        vertices: createCubeVertices(-0.1, -0.55, 0.0, 0.1, 0.3, 0.1) 
-    },
-    leftFoot: { 
-        vertices: createCubeVertices(-0.1, -0.75, 0.0, 0.1, 0.1, 0.1) 
-    },
-    rightUpLeg: { 
-        vertices: createCubeVertices(0.1, -0.2, 0.0, 0.1, 0.4, 0.1) 
-    },
-    rightLeg: { 
-        vertices: createCubeVertices(0.1, -0.55, 0.0, 0.1, 0.3, 0.1) 
-    },
-    rightFoot: { 
-        vertices: createCubeVertices(0.1, -0.75, 0.0, 0.1, 0.1, 0.1) 
-    }
+const JOINTS = {
+    HIPS: vec4(0.0, 0.0, 0.0, 1.0),
+    SPINE1: vec4(0.0, 0.1, 0.0, 1.0),
+    SPINE2: vec4(0.0, 0.2, 0.0, 1.0),
+    HEAD: vec4(0.0, 0.3, 0.0, 1.0),
+    LEFT_SHOULDER: vec4(-0.1, 0.2, 0.0, 1.0),
+    LEFT_ARM: vec4(-0.1, 0.1, 0.0, 1.0),
+    LEFT_HAND: vec4(-0.1, 0.0, 0.0, 1.0),
+    RIGHT_SHOULDER: vec4(0.1, 0.2, 0.0, 1.0),
+    RIGHT_ARM: vec4(0.1, 0.1, 0.0, 1.0),
+    RIGHT_HAND: vec4(0.1, 0.0, 0.0, 1.0),
+    LEFT_THIGH: vec4(-0.05, 0.0, 0.0, 1.0),
+    LEFT_LEG: vec4(-0.05, -0.1, 0.0, 1.0),
+    LEFT_FOOT: vec4(-0.05, -0.2, 0.0, 1.0),
+    RIGHT_THIGH: vec4(0.05, 0.0, 0.0, 1.0),
+    RIGHT_LEG: vec4(0.05, -0.1, 0.0, 1.0),
+    RIGHT_FOOT: vec4(0.05, -0.2, 0.0, 1.0)
 };
+
+const hierarchy = {
+    HIPS: ["SPINE1", "LEFT_THIGH", "RIGHT_THIGH"],
+    SPINE1: ["SPINE2"],
+    SPINE2: ["HEAD", "LEFT_SHOULDER", "RIGHT_SHOULDER"],
+    LEFT_SHOULDER: ["LEFT_ARM"],
+    LEFT_ARM: ["LEFT_HAND"],
+    RIGHT_SHOULDER: ["RIGHT_ARM"],
+    RIGHT_ARM: ["RIGHT_HAND"],
+    LEFT_THIGH: ["LEFT_LEG"],
+    LEFT_LEG: ["LEFT_FOOT"],
+    RIGHT_THIGH: ["RIGHT_LEG"],
+    RIGHT_LEG: ["RIGHT_FOOT"],
+    HEAD: [],
+    LEFT_HAND: [],
+    RIGHT_HAND: [],
+    LEFT_FOOT: [],
+    RIGHT_FOOT: []
+};
+
+function createNode(name, translation, render, sibling = null, child = null) {
+    let node = {
+        name: name,
+        translation: translation,
+        rotation: vec3(0.0, 0.0, 0.0),
+        transform: mat4(),
+        worldMatrix: mat4(),
+        render: render,
+        sibling: sibling,
+        child: child
+    }
+    return node;
+}
+
+function buildTreeFromHierarchy(joints, hierarchy, render) {
+    const nodes = {};
+
+    for (let name in joints) {
+        nodes[name] = createNode(name, vec3(0, 0, 0), render);
+    }
+
+    function setLocalTranslation(name, parentPos) {
+        const globalPos = vec3(joints[name][0], joints[name][1], joints[name][2]);
+        const localPos = subtract(globalPos, parentPos);
+
+        nodes[name].translation = localPos;
+
+        const children = hierarchy[name];
+        if (children.length === 0) return;
+
+        nodes[name].child = nodes[children[0]];
+        for (let i = 0; i < children.length - 1; i++) {
+            nodes[children[i]].sibling = nodes[children[i + 1]];
+        }
+
+        for (let child of children) {
+            setLocalTranslation(child, globalPos);
+        }
+    }
+
+    nodes["HIPS"].translation = vec3(joints["HIPS"][0], joints["HIPS"][1], joints["HIPS"][2]);
+    setLocalTranslation("HIPS", vec3(0, 0, 0));
+
+    return nodes["HIPS"];
+}
+
+function traverse(root) {
+    if (root === null) return;
+
+    stack.push({ node: root, parentMatrix: mat4(), parentNode: null });
+
+    while (stack.length > 0) {
+        const { node, parentMatrix, parentNode } = stack.pop();
+        if (!node) continue;
+
+        let t = translate(node.translation);
+        let rx = rotate(node.rotation[0], vec3(1, 0, 0));
+        let ry = rotate(node.rotation[1], vec3(0, 1, 0));
+        let rz = rotate(node.rotation[2], vec3(0, 0, 1));
+        node.transform = mult(t, mult(rz, mult(ry, rx)));
+        node.worldMatrix = mult(parentMatrix, node.transform);
+
+        node.render(node.worldMatrix);
+
+        if (parentNode) {
+            const from = mult(parentNode.worldMatrix, vec4(0, 0, 0, 1));
+            const to = mult(node.worldMatrix, vec4(0, 0, 0, 1));
+            renderBone(from, to, mat4());
+        }
+
+        if (node.child) {
+            let child = node.child;
+            while (child) {
+                stack.push({ node:child, parentMatrix: node.worldMatrix, parentNode: node });
+                child = child.sibling;
+            }
+        }
+
+        if (node.sibling) {
+            stack.push({ node: node.sibling, parentMatrix: parentMatrix });
+        }
+    }
+}
+
+function animateTree(node, time) {
+    let angle = Math.sin(time * 0.002) * 30;
+
+    if (node.name === "LEFT_ARM") node.rotation[2] = angle;
+    if (node.name === "RIGHT_ARM") node.rotation[2] = -angle;
+
+    if (node.child) animateTree(node.child, time);
+    if (node.sibling) animateTree(node.sibling, time);
+}
 
 window.onload = function init() {
     const canvas = document.getElementById("glCanvas");
     gl = WebGLUtils.setupWebGL(canvas);
-    if (!gl) { alert("WebGL not available"); return; }
+    if (!gl) { alert("WebGL is not available") };
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
 
-    const program = initShaders(gl, "vertex-shader", "fragment-shader");
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    let allVertices = [];
-    let allIndices = [];
-    let vOffset = 0, iOffset = 0;
-    const bonesOrder = [];
+    uModelViewMatrix = gl.getUniformLocation(program, "uModelViewMatrix");
+    uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
 
-    for (const name in bones) {
-        const verts = bones[name].vertices;
-        const inds = getCubeIndices(vOffset);
+    sphereBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten([vec4(0, 0, 0, 1)]), gl.STATIC_DRAW);
 
-        bonesOrder.push({ indexStart: iOffset, indexCount: inds.length });
+    lineBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten([vec4(), vec4()]), gl.DYNAMIC_DRAW);
 
-        allVertices.push(...verts);
-        allIndices.push(...inds);
-        vOffset += verts.length;
-        iOffset += inds.length;
-    }
-    window.bonesOrder = bonesOrder;
-    indexCount = allIndices.length;
+    const vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
 
-    const vBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(allVertices), gl.STATIC_DRAW);
-    const vPos = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPos, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPos);
+    root = buildTreeFromHierarchy(JOINTS, hierarchy, renderJoint);
 
-    const iBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(allIndices), gl.STATIC_DRAW);
-
-    modelViewMatrixLoc  = gl.getUniformLocation(program, "modelViewMatrix");
-    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
-
-    modelViewMatrix = lookAt(eye, at, up);
-    projectionMatrix = perspective(70.0, canvas.width / canvas.height, 0.1, 10.0);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-
-    initOrbitControl(canvas);
+    modelViewMatrix = lookAt(vec3(0.0, 0.3, 1.5), vec3(0.0, 0.1, 0.0), vec3(0.0, 1.0, 0.0));
+    projectionMatrix = perspective(60, canvas.width / canvas.height, 0.1, 10.0);
 
     render();
-};
+}
 
-function render() {
+function renderJoint(worldMatrix) {
+    gl.useProgram(program);
+
+    const mvMatrix = mult(modelViewMatrix, worldMatrix);
+    gl.uniformMatrix4fv(uModelViewMatrix, false, flatten(mvMatrix));
+    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffer);
+    const vPositionLoc = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPositionLoc, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPositionLoc);
+
+    gl.drawArrays(gl.POINTS, 0, 1);
+}
+
+function renderBone(from, to, worldMatrix) {
+    gl.useProgram(program);
+
+    const mvMatrix = mult(modelViewMatrix, worldMatrix);
+    gl.uniformMatrix4fv(uModelViewMatrix, false, flatten(mvMatrix));
+    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+
+    const vertices = [from, to];
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.DYNAMIC_DRAW);
+
+    const vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+
+    gl.drawArrays(gl.LINES, 0, 2);
+}
+
+function render(time = 0) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    const BYTES_PER_INDEX = Uint16Array.BYTES_PER_ELEMENT;
 
-    modelViewMatrix = lookAt(eye, at, up);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    animateTree(root, time);
 
-    for (const bone of window.bonesOrder) {
-        const offset = bone.indexStart * BYTES_PER_INDEX;
-        gl.drawElements(gl.TRIANGLES, bone.indexCount, gl.UNSIGNED_SHORT, offset);
-    }
+    traverse(root);
 
     requestAnimationFrame(render);
-}
-
-function animateCamera(targetEye, targetUp, duration = 1000) {
-    const startEye = vec3(eye[0], eye[1], eye[2]);
-    const startUp = vec3(up[0], up[1], up[2]);
-    const startTime = Date.now();
-
-    function update() {
-        const currentTime = Date.now();
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        const easeProgress = 1 - Math.pow(1 - progress, 3);
-
-        eye = vec3(
-            startEye[0] + (targetEye[0] - startEye[0]) * easeProgress,
-            startEye[1] + (targetEye[1] - startEye[1]) * easeProgress,
-            startEye[2] + (targetEye[2] - startEye[2]) * easeProgress
-        );
-
-        up = normalize(vec3(
-            startUp[0] + (targetUp[0] - startUp[0]) * easeProgress,
-            startUp[1] + (targetUp[1] - startUp[1]) * easeProgress,
-            startUp[2] + (targetUp[2] - startUp[2]) * easeProgress
-        ));
-
-        updateCamera();
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-
-    requestAnimationFrame(update);
-}
-
-function updateCamera() {
-    modelViewMatrix = lookAt(eye, at, up);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-}
-
-function initOrbitControl(canvas) {
-    let rotationMatrix = mat4();
-    let lastMouseX = 0;
-    let lastMouseY = 0;
-    let mouseDown = false;
-
-    canvas.addEventListener("mousedown", function(event) {
-        mouseDown = true;
-        lastMouseX = event.clientX;
-        lastMouseY = event.clientY;
-    });
-
-    canvas.addEventListener("mouseup", function() {
-        mouseDown = false;
-    });
-
-    canvas.addEventListener("mousemove", function(event) {
-        if (!mouseDown) {
-            return;
-        }
-
-        let newX = event.clientX;
-        let newY = event.clientY;
-
-        let deltaX = newX - lastMouseX;
-        let deltaY = newY - lastMouseY;
-
-        let rotation = mat4();
-        rotation = mult(rotation, rotate(deltaY / 5, vec3(1, 0, 0)));
-        rotation = mult(rotation, rotate(deltaX / 5, vec3(0, 1, 0)));
-
-        rotationMatrix = mult(rotation, rotationMatrix);
-
-        let rotatedEye = mult(rotationMatrix, vec4(0, 0, radius, 1));
-        eye = vec3(rotatedEye[0], rotatedEye[1], rotatedEye[2]);
-
-        let rotatedUp = mult(rotationMatrix, vec4(0, 1, 0, 0));
-        up = normalize(vec3(rotatedUp[0], rotatedUp[1], rotatedUp[2]));
-
-        updateCamera();
-
-        lastMouseX = newX;
-        lastMouseY = newY;
-    });
-
-    canvas.addEventListener("wheel", function(event) {
-        event.preventDefault();
-
-        let zoomSensitivity = 0.001;
-        radius = Math.max(1.0, Math.min(5.0, radius + event.deltaY * zoomSensitivity));
-
-        let direction = normalize(subtract(eye, at));
-        eye = add(at, scale(radius, direction));
-
-        updateCamera();
-    });
-}
-
-function updateEyePosition() {
-    const radAz = toRadians(azimuth);
-    const radEl = toRadians(elevation);
-
-    eye[0] = radius * Math.cos(radEl) * Math.sin(radAz);
-    eye[1] = radius * Math.sin(radEl);
-    eye[2] = radius * Math.cos(radEl) * Math.cos(radAz);
-
-    updateCamera();
 }
