@@ -4,6 +4,7 @@ const JOINTS = {
     SPINE2: vec4(0.0, 0.6, 0.0, 1.0),
     NECK: vec4(0.0, 0.7, 0.0, 1.0),
     HEAD: vec4(0.0, 0.8, 0.0, 1.0),
+    HEAD_TOPEND: vec4(0.0, 0.82, 0.0, 1.0),
     LEFT_SHOULDER: vec4(-0.2, 0.6, 0.0, 1.0),
     LEFT_ARM: vec4(-0.2, 0.3, 0.0, 1.0),
     LEFT_FOREARM: vec4(-0.2, 0.0, 0.0, 1.0),
@@ -69,6 +70,8 @@ const hierarchy = {
     SPINE1: ["SPINE2"],
     SPINE2: ["NECK", "LEFT_SHOULDER", "RIGHT_SHOULDER"],
     NECK: ["HEAD"],
+    HEAD: ["HEAD_TOPEND"],
+    HEAD_TOPEND: [],
     LEFT_SHOULDER: ["LEFT_ARM"],
     LEFT_ARM: ["LEFT_FOREARM"],
     LEFT_FOREARM: ["LEFT_HAND"],
@@ -125,7 +128,6 @@ const hierarchy = {
     LEFT_TOEBASE: ["LEFT_TOEEND"],
     RIGHT_FOOT: ["RIGHT_TOEBASE"],
     RIGHT_TOEBASE: ["RIGHT_TOEEND"],
-    HEAD: [],
     LEFT_TOEEND: [],
     RIGHT_TOEEND: []
 };
