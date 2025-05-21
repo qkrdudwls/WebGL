@@ -1,15 +1,19 @@
 "use strict";
 
-let gl;
-
-let modelViewMatrix, projectionMatrix;
+let gl, program;
 let stack = [];
-
-let uModelViewMatrix, uProjectionMatrix;
 let root;
 
-let program;
-let sphereBuffer, lineBuffer;
+let modelViewMatrix, projectionMatrix;
+let uModelViewMatrix, uProjectionMatrix, uNormalMatrix;
+let vNormal;
+
+let sphereBuffer, cylinderBuffer;
+let sphereIndexBuffer, cylinderIndexBuffer;
+let sphereNormalBuffer, cylinderNormalBuffer;
+let sphereData, cylinderData;
+
+let uLightPosition, uLightColor, uAmbientLight, uDiffuseStrength;
 
 function createNode(name, translation, render, sibling = null, child = null) {
     let node = {
@@ -51,46 +55,68 @@ function buildTreeFromHierarchy(joints, hierarchy, render) {
         }
     }
 
-    nodes["HIPS"].translation = vec3(joints["HIPS"][0], joints["HIPS"][1], joints["HIPS"][2]);
-    setLocalTranslation("HIPS", vec3(0, 0, 0));
+    const hipsPos = vec3(joints["HIPS"][0], joints["HIPS"][1], joints["HIPS"][2]);
+    nodes["HIPS"].translation = hipsPos;
+
+    if (hierarchy["HIPS"].length > 0) {
+        nodes["HIPS"].child = nodes[hierarchy["HIPS"][0]];
+
+        for (let i = 0; i< hierarchy["HIPS"].length - 1; i++) {
+            nodes[hierarchy["HIPS"][i]].sibling = nodes[hierarchy["HIPS"][i + 1]];
+        }
+    }
+
+    for (let child of hierarchy["HIPS"]) {
+        setLocalTranslation(child, hipsPos);
+    }
 
     return nodes["HIPS"];
 }
 
 function traverse(root) {
     if (root === null) return;
-
+    
+    stack = [];
     stack.push({ node: root, parentMatrix: mat4(), parentNode: null });
 
     while (stack.length > 0) {
-        const { node, parentMatrix, parentNode } = stack.pop();
+        const current = stack.pop();
+        const node = current.node;
+        const parentMatrix = current.parentMatrix;
+        const parentNode = current.parentNode;
+
         if (!node) continue;
 
-        let t = translate(node.translation);
-        let rx = rotate(node.rotation[0], vec3(1, 0, 0));
-        let ry = rotate(node.rotation[1], vec3(0, 1, 0));
-        let rz = rotate(node.rotation[2], vec3(0, 0, 1));
+        const t = translate(node.translation[0], node.translation[1], node.translation[2]);
+        const rx = rotate(node.rotation[0], vec3(1, 0, 0));
+        const ry = rotate(node.rotation[1], vec3(0, 1, 0));
+        const rz = rotate(node.rotation[2], vec3(0, 0, 1));
+
         node.transform = mult(t, mult(rz, mult(ry, rx)));
         node.worldMatrix = mult(parentMatrix, node.transform);
 
-        node.render(node.worldMatrix);
+        renderJoint(node.worldMatrix);
 
         if (parentNode) {
-            const from = mult(parentNode.worldMatrix, vec4(0, 0, 0, 1));
-            const to = mult(node.worldMatrix, vec4(0, 0, 0, 1));
-            renderBone(from, to, mat4());
-        }
-
-        if (node.child) {
-            let child = node.child;
-            while (child) {
-                stack.push({ node:child, parentMatrix: node.worldMatrix, parentNode: node });
-                child = child.sibling;
-            }
+            const fromVec = mult(parentMatrix, vec4(0, 0, 0, 1));
+            const toVec = mult(node.worldMatrix, vec4(0, 0, 0, 1));
+            renderBone(fromVec, toVec);
         }
 
         if (node.sibling) {
-            stack.push({ node: node.sibling, parentMatrix: parentMatrix });
+            stack.push({ 
+                node: node.sibling, 
+                parentMatrix: parentMatrix, 
+                parentNode: parentNode 
+            });
+        }
+
+        if (node.child) {
+            stack.push({ 
+                node: node.child, 
+                parentMatrix: node.worldMatrix, 
+                parentNode: node 
+            });
         }
     }
 }
@@ -119,18 +145,45 @@ window.onload = function init() {
 
     uModelViewMatrix = gl.getUniformLocation(program, "uModelViewMatrix");
     uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
+    uNormalMatrix = gl.getUniformLocation(program, "uNormalMatrix");
+
+    uLightPosition = gl.getUniformLocation(program, "uLightPosition");
+    uLightColor = gl.getUniformLocation(program, "uLightColor");
+    uAmbientLight = gl.getUniformLocation(program, "uAmbientLight");
+    uDiffuseStrength = gl.getUniformLocation(program, "uDiffuseStrength");
+
+    gl.uniform3fv(uLightPosition, flatten(vec3(1.0, 2.0, 2.0)));
+    gl.uniform3fv(uLightColor, flatten(vec3(1.0, 1.0, 1.0)));
+    gl.uniform3fv(uAmbientLight, flatten(vec3(0.2, 0.2, 0.2)));
+    gl.uniform1f(uDiffuseStrength, 0.8);
+
+    sphereData = createSphere(0.015, 12, 12);
 
     sphereBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten([vec4(0, 0, 0, 1)]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData.vertices), gl.STATIC_DRAW);
 
-    lineBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten([vec4(), vec4()]), gl.DYNAMIC_DRAW);
+    sphereNormalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereNormalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData.normals), gl.STATIC_DRAW);
 
-    const vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
+    sphereIndexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphereData.indices), gl.STATIC_DRAW);
+
+    cylinderData = createCylinder(0.008, 0.008, 1.0, 8, 1);
+
+    cylinderBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cylinderBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cylinderData.vertices), gl.STATIC_DRAW);
+
+    cylinderNormalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cylinderNormalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cylinderData.normals), gl.STATIC_DRAW);
+
+    cylinderIndexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cylinderIndexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cylinderData.indices), gl.STATIC_DRAW);
 
     root = buildTreeFromHierarchy(JOINTS, hierarchy, renderJoint);
 
@@ -144,34 +197,57 @@ function renderJoint(worldMatrix) {
     gl.useProgram(program);
 
     const mvMatrix = mult(modelViewMatrix, worldMatrix);
-    gl.uniformMatrix4fv(uModelViewMatrix, false, flatten(mvMatrix));
+    const scale = 1.0;
+    const scaledMvMatrix = mult(mvMatrix, scalem(scale, scale, scale));
+    
+    gl.uniformMatrix4fv(uModelViewMatrix, false, flatten(scaledMvMatrix));
     gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+
+    const normalMatrix = transpose(inverse4(scaledMvMatrix));
+    gl.uniformMatrix4fv(uNormalMatrix, false, flatten(normalMatrix));
 
     gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffer);
-    const vPositionLoc = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPositionLoc, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPositionLoc);
-
-    gl.drawArrays(gl.POINTS, 0, 1);
-}
-
-function renderBone(from, to, worldMatrix) {
-    gl.useProgram(program);
-
-    const mvMatrix = mult(modelViewMatrix, worldMatrix);
-    gl.uniformMatrix4fv(uModelViewMatrix, false, flatten(mvMatrix));
-    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
-
-    const vertices = [from, to];
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.DYNAMIC_DRAW);
-
     const vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    gl.drawArrays(gl.LINES, 0, 2);
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereNormalBuffer);
+    const vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vNormal);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer);
+    gl.drawElements(gl.TRIANGLES, sphereData.indices.length, gl.UNSIGNED_SHORT, 0);
+}
+
+function renderBone(from, to) {
+    gl.useProgram(program);
+
+    try {
+        const cylinderMatrix = calculateCylinderMatrix(from, to);
+        const mvMatrix = mult(modelViewMatrix, cylinderMatrix);
+
+        gl.uniformMatrix4fv(uModelViewMatrix, false, flatten(mvMatrix));
+        gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+
+        const normalMatrix = transpose(inverse4(mvMatrix));
+        gl.uniformMatrix4fv(uNormalMatrix, false, flatten(normalMatrix));
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, cylinderBuffer);
+        const vPosition = gl.getAttribLocation(program, "vPosition");
+        gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(vPosition);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, cylinderNormalBuffer);
+        const vNormal = gl.getAttribLocation(program, "vNormal");
+        gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(vNormal);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cylinderIndexBuffer);
+        gl.drawElements(gl.TRIANGLES, cylinderData.indices.length, gl.UNSIGNED_SHORT, 0);
+    } catch (error) {
+        console.error("Error rendering bone:", error);
+    }
 }
 
 function render(time = 0) {
